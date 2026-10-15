@@ -296,7 +296,18 @@
   let resizeTimer;
   window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(alignRows, 100); });
 
+  // Feedback link: on a build it opens the "wrong advice" form with the build filled in.
+  const ISSUES = "https://github.com/counterbuild/counterbuild.github.io/issues/new";
+  function updateFeedbackLink() {
+    const a = $("feedback");
+    if (state.step === "build" && state.hero && state.enemies.length) {
+      const build = `${E.heroById[state.hero].name} vs ${state.enemies.map(id => E.heroById[id].name).join(", ")} (${ROUTES[state.route].name}, ${LEVEL_INFO[state.level].name})`;
+      a.href = `${ISSUES}?template=1-wrong-advice.yml&build=${encodeURIComponent(build)}`;
+    } else a.href = `${ISSUES}/choose`;
+  }
+
   function render() {
+    updateFeedbackLink();
     if (state.step === "hero") renderHeroStep();
     else if (state.step === "enemy") renderEnemyStep();
     else {

@@ -1,0 +1,27 @@
+name: Bug report
+description: Something on the site is broken or looks wrong.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      placeholder: "When I pick Seven and click Heavy, the cards…"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can we see it?
+      placeholder: "1. Pick … 2. Click … 3. See …"
+  - type: input
+    id: build
+    attributes:
+      label: Your hero and the enemy team
+      description: Copied automatically if you clicked Feedback from a build.
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: "iPhone, Safari / Windows, Chrome"

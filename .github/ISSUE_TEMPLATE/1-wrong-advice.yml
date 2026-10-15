@@ -1,0 +1,30 @@
+name: Wrong or weak advice
+description: A build, item, tip or counter that doesn't make sense in a real game.
+title: "[Advice] "
+labels: ["advice"]
+body:
+  - type: input
+    id: build
+    attributes:
+      label: Your hero and the enemy team
+      description: Copied automatically if you clicked Feedback from a build.
+      placeholder: "Wraith vs Abrams, Lady Geist, Haze (Gun Carry, Normal)"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What's wrong?
+      placeholder: "Toxic Bullets is suggested, but Wraith almost never buys it because…"
+    validations:
+      required: true
+  - type: textarea
+    id: better
+    attributes:
+      label: What would be better?
+      placeholder: "Buy X instead, because…"
+  - type: dropdown
+    id: rank
+    attributes:
+      label: Your rank (optional)
+      options: ["Prefer not to say", "Obscurus", "Initiate", "Seeker", "Acolyte", "Sentinel", "Mystic", "Ritualist", "Emissary", "Oracle", "Phantom", "Ascendant", "Eternus"]

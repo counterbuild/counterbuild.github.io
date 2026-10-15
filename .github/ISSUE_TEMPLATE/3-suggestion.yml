@@ -1,0 +1,16 @@
+name: Suggestion
+description: An idea or feature you'd like to see.
+title: "[Idea] "
+labels: ["suggestion"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      placeholder: "It would be great if CounterBuild could…"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would it help?
