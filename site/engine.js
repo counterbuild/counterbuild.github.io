@@ -190,7 +190,9 @@
       const who = enemyIds.map(id => heroById[id]).filter(h => heroTraits(h).has(t)).map(h => h.name);
       return who.length ? `${rule.label} (${who.join(", ")})` : rule.label;
     });
-    if (counters.length) out.push({ kind: "rule", text: counters.join(" · ") });
+    // Some items counter more than one trait; describe those in one plain line instead.
+    const COUNTER_TEXT = { "Counterspell": "All enemy abilities" };
+    if (counters.length) out.push({ kind: "rule", text: COUNTER_TEXT[x.it.name] || counters.join(" · ") });
     out.push({ kind: "tip", text: window.TIPS[x.it.name] || USE_TIP[x.it.active ? "active" : "passive"] });
     out.push({ kind: "when", text: whenToBuy(x, enemyIds, traits, buildNames, used) });
     const secs = stats && stats.buy[x.it.id];
