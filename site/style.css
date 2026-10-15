@@ -408,3 +408,4 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
 }
 #step-build .why p { text-align: center; }
 #step-build .route .mix { align-self: stretch; }
+#step-build .you-chip span { display: none; }
