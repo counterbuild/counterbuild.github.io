@@ -97,18 +97,15 @@
       <button type="button" class="fb-x" data-fb-close aria-label="Close">✕</button>
     </div>
     <div class="fb-types" role="radiogroup" aria-label="Feedback type">
-      <label><input type="radio" name="type" value="Wrong advice" checked><span>Wrong Advice</span></label>
+      <label><input type="radio" name="type" value="Build advice" checked><span>Build Advice</span></label>
       <label><input type="radio" name="type" value="Bug"><span>Bug</span></label>
       <label><input type="radio" name="type" value="Idea"><span>Idea</span></label>
     </div>
     <label class="fb-label" for="fb-msg">Message</label>
-    <textarea id="fb-msg" name="message" rows="5" maxlength="2000" required placeholder="What's wrong, or what would make CounterBuild better?"></textarea>
+    <textarea id="fb-msg" name="message" rows="5" maxlength="2000" required placeholder="Tell us what's off with a build, what broke, or what would make CounterBuild better."></textarea>
     <p id="fb-build" class="fb-build"></p>
-    <label class="fb-label" for="fb-contact">Contact <span>(optional, if you want a reply)</span></label>
-    <input id="fb-contact" name="contact" maxlength="120" placeholder="Discord name or email">
     <input type="text" name="website" class="fb-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
     <div class="fb-actions">
-      <a class="fb-gh" href="https://github.com/counterbuild/counterbuild.github.io/issues/new/choose" target="_blank" rel="noopener">Or post on GitHub</a>
       <button type="submit" class="btn primary" id="fb-send">Send</button>
     </div>
     <p id="fb-status" class="fb-status" aria-live="polite"></p>

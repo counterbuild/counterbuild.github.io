@@ -469,3 +469,4 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
 /* Cards are sized by their front; a longer stat side scrolls inside the card instead of stretching it */
 .flip-inner { position: relative; }
 .face.back { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: thin; }
+.fb-actions { justify-content: flex-end; }

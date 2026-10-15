@@ -325,7 +325,7 @@
     const type = f.get("type");
     const payload = {
       _subject: `CounterBuild feedback: ${type}`, _template: "table", _captcha: "false",
-      type, message: msg, contact: String(f.get("contact") || "").trim() || "(none)",
+      type, message: msg,
       build: buildContext() || "(not on a build page)", page: location.href,
     };
     try {
@@ -338,7 +338,7 @@
       setTimeout(() => $("fb").open && $("fb").close(), 1600);
     } catch (e) {
       $("fb-send").disabled = false;
-      $("fb-status").innerHTML = `Couldn't send right now. You can <a href="https://github.com/counterbuild/counterbuild.github.io/issues/new/choose" target="_blank" rel="noopener">post it on GitHub</a> instead.`;
+      $("fb-status").textContent = "Couldn't send right now. Please try again in a moment.";
     }
   }
   $("feedback").addEventListener("click", openFeedback);
