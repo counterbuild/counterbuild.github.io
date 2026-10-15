@@ -189,7 +189,7 @@
     out.push({ kind: "tip", text: window.TIPS[x.it.name] || USE_TIP[x.it.active ? "active" : "passive"] });
     out.push({ kind: "when", text: whenToBuy(x, enemyIds, traits, buildNames, used) });
     const secs = stats && stats.buy[x.it.id];
-    if (secs) out.push({ kind: "timing", text: `Around minute ${Math.max(1, Math.round(secs / 60))} in ${hero.name} games.` });
+    if (secs) out.push({ kind: "timing", text: `Around minute ${Math.max(1, Math.round(secs / 60))}` });
     if (enemyIds.length && x.md.n >= 1500 && Math.abs(x.md.pts) >= 0.3) {
       const p = x.md.pts, n = x.md.n.toLocaleString("en-US");
       out.push(p > 0
