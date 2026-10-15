@@ -182,19 +182,25 @@
 
   function explain(x, hero, enemyIds, traits, route, stats, buildNames = new Set(), used = new Set()) {
     const out = [];
-    out.push({ kind: "what", text: window.LINES[x.it.name] || x.it.desc || "A plain stat item. Check the in-game tooltip for exact numbers." });
-    for (const [t, rule] of Object.entries(R)) {
-      if (traits.on[t] && rule.items[x.it.name]) out.push({ kind: "rule", text: rule.items[x.it.name][1], trait: rule.label });
-    }
+    // Hand-written line, else the first sentence of the game's own description.
+    const gameDesc = (x.it.desc || "").split(/(?<=\.)\s/)[0];
+    out.push({ kind: "what", text: window.LINES[x.it.name] || gameDesc || "A plain stat item. Check the in-game tooltip for exact numbers." });
+    // One short Counter line: which traits it answers and which enemy heroes bring them.
+    const counters = Object.entries(R).filter(([t, rule]) => traits.on[t] && rule.items[x.it.name]).map(([t, rule]) => {
+      const who = enemyIds.map(id => heroById[id]).filter(h => heroTraits(h).has(t)).map(h => h.name);
+      return who.length ? `${rule.label} (${who.join(", ")})` : rule.label;
+    });
+    if (counters.length) out.push({ kind: "rule", text: counters.join(" · ") });
     out.push({ kind: "tip", text: window.TIPS[x.it.name] || USE_TIP[x.it.active ? "active" : "passive"] });
     out.push({ kind: "when", text: whenToBuy(x, enemyIds, traits, buildNames, used) });
     const secs = stats && stats.buy[x.it.id];
     if (secs) out.push({ kind: "timing", text: `Around minute ${Math.max(1, Math.round(secs / 60))}` });
+    // Short evidence line: how this item does vs these heroes compared with its usual win rate.
     if (enemyIds.length && x.md.n >= 1500 && Math.abs(x.md.pts) >= 0.3) {
-      const p = x.md.pts, n = x.md.n.toLocaleString("en-US");
+      const p = x.md.pts, n = x.md.n >= 1000 ? `${(x.md.n / 1000).toFixed(x.md.n < 10000 ? 1 : 0)}k` : x.md.n;
       out.push(p > 0
-        ? { kind: "data", text: `Data leans the same way: vs these heroes, ${hero.name} players with this item did ${p.toFixed(1)} win-rate points better than their usual with it (a small effect, ${n} games).` }
-        : { kind: "warn", text: `Data disagrees: vs these heroes, ${hero.name} players with it did ${Math.abs(p).toFixed(1)} win-rate points worse than their usual with it (${n} games).` });
+        ? { kind: "data", text: `+${p.toFixed(1)} win rate vs these heroes`, title: `${n} games` }
+        : { kind: "warn", text: `${p.toFixed(1)} win rate vs these heroes`, title: `${n} games` });
     }
     return out;
   }

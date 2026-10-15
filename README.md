@@ -24,7 +24,7 @@ or click an optional swap to replace it.
 ## Run it locally
 
 ```bash
-python -m http.server 8123 --directory site
+python tools/serve.py 8123
 ```
 
 Then open http://localhost:8123.

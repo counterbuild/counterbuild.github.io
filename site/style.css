@@ -456,3 +456,16 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
 .feedback { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .feedback:hover { background: transparent; border-color: var(--accent); color: var(--accent); }
 @media (max-width: 640px) { .nav-sep { height: 20px; } }
+
+/* Win-rate evidence as a small tag next to Usually Bought */
+.note-slot[data-slot=timing] { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 10px; }
+.evidence { font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+.evidence.data { color: var(--good); }
+.evidence.warn { color: var(--bad); }
+
+/* Counter lines stay short */
+.note-slot[data-slot=rule] p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+
+/* Cards are sized by their front; a longer stat side scrolls inside the card instead of stretching it */
+.flip-inner { position: relative; }
+.face.back { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: thin; }

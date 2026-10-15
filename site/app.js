@@ -194,12 +194,14 @@
   function bonusStats(it) {
     const inn = (it.details ? it.details.sections : []).filter(sec => sec.type === "innate");
     const stats = inn.flatMap(sec => sec.parts.flatMap(p => [...p.important, ...p.props]));
-    return stats.length ? `<p class="bonus">${stats.map(p => `<span><b>${esc(p.value)}</b> ${esc(p.label)}</span>`).join("")}</p>` : "";
+    return stats.length ? `<p class="bonus">${stats.slice(0, 3).map(p => `<span><b>${esc(p.value)}</b> ${esc(p.label)}</span>`).join("")}</p>` : "";
   }
 
   // Each kind of note gets its own slot, so the same note lines up across cards in a row.
-  const NOTE_SLOTS = [["rule", ["rule"]], ["tip", ["tip"]], ["when", ["when"]], ["timing", ["timing"]], ["data", ["data", "warn"]]];
-  const note = n => `<p><span class="badge ${n.kind}">${LABEL[n.kind]}</span>${n.trait ? `<b>${esc(n.trait)}:</b> ` : ""}${esc(n.text)}</p>`;
+  const NOTE_SLOTS = [["rule", ["rule"]], ["tip", ["tip"]], ["when", ["when"]], ["timing", ["timing", "data", "warn"]]];
+  const note = n => n.kind === "data" || n.kind === "warn"
+    ? `<span class="evidence ${n.kind}" title="${esc(n.title || "")}">${n.kind === "data" ? "▲" : "▼"} ${esc(n.text)}</span>`
+    : `<p><span class="badge ${n.kind}">${LABEL[n.kind]}</span>${n.trait ? `<b>${esc(n.trait)}:</b> ` : ""}${esc(n.text)}</p>`;
 
   function itemCard(x, b, alts, st, origId, swapped) {
     const notes = E.explain(x, b.hero, state.enemies, b.traits, state.route, st, b.names, b.usedWhen);
@@ -217,7 +219,7 @@
             <span class="cost">${soul(x.it.cost)}</span>
           </div>
           <div class="intro">
-            <p class="tagline">${esc(notes[0].text)}</p>
+            <p class="tagline" title="${esc(notes[0].text)}">${esc(notes[0].text)}</p>
             ${bonusStats(x.it)}
           </div>
           <div class="why">
