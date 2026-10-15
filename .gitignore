@@ -1,0 +1,5 @@
+# Raw API downloads (rebuilt by tools/update_data.py)
+data/
+# Local editor / preview settings
+.claude/
+__pycache__/

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CounterBuild</title>
+<meta name="description" content="CounterBuild: item builds for Deadlock that counter the enemy team, with the reasons behind every item.">
+<link rel="icon" type="image/svg+xml" href="img/logo.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-row">
+    <button id="home" class="brand" type="button"><img src="img/logo.svg" alt="" width="30" height="30"><span>CounterBuild</span><span class="brand-sep" aria-hidden="true">|</span><span class="beta">Beta</span></button>
+    <ol class="steps" aria-label="Progress">
+      <li><button type="button" data-goto="hero"><span>1</span>Your Hero</button></li>
+      <li><button type="button" data-goto="enemy"><span>2</span>Enemy Team</button></li>
+      <li><button type="button" data-goto="build"><span>3</span>Item Details</button></li>
+    </ol>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Step 1 -->
+  <section id="step-hero" class="step" hidden>
+    <div class="step-head">
+      <h1>Who Are You Playing?</h1>
+      <p class="sub">Pick your hero to start.</p>
+    </div>
+    <div id="hero-grid" class="grid"></div>
+  </section>
+
+  <!-- Step 2 -->
+  <section id="step-enemy" class="step" hidden>
+    <div class="step-head row">
+      <div>
+        <h1>Who Are You Up Against?</h1>
+        <p class="sub">Pick up to 6 enemy heroes. Pick a hero again to remove it.</p>
+      </div>
+      <div class="lineup">
+        <div id="you-chip" class="you-chip"></div>
+        <span class="vs">VS</span>
+        <div id="enemy-slots" class="slots"></div>
+      </div>
+    </div>
+    <div id="enemy-grid" class="grid"></div>
+    <div class="actions">
+      <button id="back-hero" class="btn ghost" type="button">← Change Hero</button>
+      <button id="clear" class="btn ghost" type="button">Clear Enemies</button>
+      <button id="go-build" class="btn primary" type="button">Get My Build →</button>
+    </div>
+  </section>
+
+  <!-- Step 3 -->
+  <section id="step-build" class="step" hidden>
+    <div class="matchup panel">
+      <div class="lineup">
+        <div id="you-chip-2" class="you-chip"></div>
+        <span class="vs">VS</span>
+        <div id="enemy-row" class="enemy-row"></div>
+      </div>
+      <div class="matchup-actions">
+        <button class="btn ghost small" data-goto="hero" type="button">Change Hero</button>
+        <button class="btn ghost small" data-goto="enemy" type="button">Edit Enemies</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Pick Your Route</h2>
+      <div id="routes" class="routes" role="radiogroup" aria-label="Route"></div>
+    </div>
+
+    <p id="status" class="status" aria-live="polite"></p>
+    <div id="result" aria-live="polite"></div>
+  </section>
+
+  <footer class="foot">
+    <p>Live data: public Deadlock matches from the last 30 days, all ranks, via <a href="https://deadlock-api.com" target="_blank" rel="noopener">deadlock-api.com</a> (unofficial, refreshed every 10 minutes).</p>
+    <p>CounterBuild is a fan-made tool and is not affiliated with or endorsed by Valve. Deadlock and its game assets are trademarks of Valve Corporation.</p>
+  </footer>
+</main>
+<script src="data.js"></script>
+<script src="knowledge.js"></script>
+<script src="tips.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
