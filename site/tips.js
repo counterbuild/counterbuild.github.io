@@ -13,7 +13,7 @@ window.TIPS = {
   "Crippling Headshot": "Land headshots on the target your team is focusing; the lower resist and healing helps everyone.",
   "Headhunter": "Peek, land a headshot, and duck back to heal. Good for long-range trading.",
   // Weapon procs
-  "Toxic Bullets": "Keep shooting the same target so the bleed stacks. Best on the enemy who heals or has the most health.",
+  "Toxic Bullets": "Keep shooting the same target so the bleed stacks. Best on the enemy with the most lifesteal, self-healing or health.",
   "Slowing Bullets": "Shoot the enemy trying to run; the slow builds the longer you stay on them.",
   "Silencer": "Stay on one target with your gun; once the silence lands, that's your window to go all in.",
   "Tesla Bullets": "Best in lanes and team fights where enemies stand close together.",
@@ -45,7 +45,7 @@ window.TIPS = {
   "Superior Duration": "Best when your key abilities are buffs, zones or disables that last a while.",
   "Mystic Vulnerability": "Hit them with spirit damage first; your follow-up abilities then hit harder.",
   "Spirit Shredder": "Shoot a target to lower their spirit resist before you use your abilities on them.",
-  "Healbane": "Hit the healer or lifesteal hero with spirit damage first so the healing cut is on them when your team dives.",
+  "Healbane": "Hit the enemy with the most lifesteal or self-healing with spirit damage first, so the healing cut is on them when your team dives.",
   "Enchanter's Emblem": "Stay above 65% health to keep the bonus. Back off and heal rather than trading while low.",
   // Defense
   "Spirit Shielding": "Nothing to press. It is cheap, so buy it early in the game against spirit-heavy lanes, then sell it late if you need the slot.",
