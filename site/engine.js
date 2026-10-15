@@ -28,12 +28,21 @@
   }
 
   // overrides: { trait: true|false } to force a trait on/off
-  function activeTraits(enemyIds, overrides) {
+  // A trait is "on" when enough enemies have it. With only 1-2 enemies picked we assume you
+  // want to counter exactly those heroes, so any trait they have counts (same on Heavy).
+  function activeTraits(enemyIds, overrides, anyCount) {
     const counts = {}, on = {};
+    const focus = anyCount || enemyIds.length <= 2;
     for (const id of enemyIds) for (const t of heroTraits(heroById[id])) counts[t] = (counts[t] || 0) + 1;
     for (const [t, rule] of Object.entries(R)) {
       const forced = overrides && overrides[t];
-      on[t] = forced === true || (forced !== false && (counts[t] || 0) >= rule.need);
+      on[t] = forced === true || (forced !== false && (counts[t] || 0) >= (focus ? 1 : rule.need));
+    }
+    // A mixed team where no trait reaches its threshold still gets countered: use the
+    // trait(s) most of them share.
+    if (enemyIds.length && !Object.values(on).some(Boolean)) {
+      const top = Math.max(0, ...Object.keys(R).map(t => counts[t] || 0));
+      for (const t of Object.keys(R)) if (top && counts[t] === top && overrides?.[t] !== false) on[t] = true;
     }
     return { counts, on };
   }
@@ -56,12 +65,12 @@
 
   // How hard to build around the enemy team.
   //   light:   keep the hero's usual build; only the 2 strongest counters get their bonus.
-  //   counter: balanced (default).
+  //   normal:  balanced (default).
   //   heavy:   counter bonuses are boosted, every counter for a trait gets full credit, and any
   //            counter item gets a flat bonus so it beats non-counter items for its slot.
-  const LEVELS = { light: { mult: 1, keep: 2, flat: 0 }, counter: { mult: 1, keep: Infinity, flat: 0 }, heavy: { mult: 1.6, keep: Infinity, flat: 4 } };
+  const LEVELS = { light: { mult: 1, keep: 2, flat: 0 }, normal: { mult: 1, keep: Infinity, flat: 0 }, heavy: { mult: 1.6, keep: Infinity, flat: 4, wide: true } };
 
-  function scoreItem(item, hero, route, enemyIds, traits, stats, level) {
+  function scoreItem(item, hero, route, enemyIds, traits, stats, wide) {
     let s = Math.min(6, (hero.pop[item.id] || 0) / 10); // this hero's staples first
     const r = ROUTES[route];
     s += r.bias[item.slot] || 0;
@@ -70,7 +79,7 @@
     for (const [t, rule] of Object.entries(R)) {
       const hit = traits.on[t] && rule.items[item.name];
       // Normally only the two strongest counters per trait get full credit, so one trait can't fill the build.
-      const full = level === "heavy" || Object.keys(rule.items).indexOf(item.name) < 2;
+      const full = wide || Object.keys(rule.items).indexOf(item.name) < 2;
       if (hit) rb += hit[0] * (full ? 1 : 0.5);
     }
     const md = stats && enemyIds.length ? matchupDelta(item, enemyIds, stats) : { pts: 0, score: 0, n: 0 };
@@ -80,12 +89,28 @@
 
   const TIER_MIX = { 4: 4, 3: 5, 2: 3 };
 
-  function build(heroId, route, enemyIds, overrides, stats, level = "counter") {
+  // Light and Heavy must always differ from Normal: if a setting gives the same 12 items,
+  // step it further (fewer counters for Light, stronger counters for Heavy) until it changes.
+  function build(heroId, route, enemyIds, overrides, stats, level = "normal") {
+    const normal = buildWith(heroId, route, enemyIds, overrides, stats, LEVELS.normal);
+    if (level !== "light" && level !== "heavy") return normal;
+    const key = b => b.chosen.map(x => x.it.id).sort().join();
+    const steps = level === "light"
+      ? [2, 1, 0].map(keep => ({ ...LEVELS.light, keep }))
+      : [4, 8, 14, 25].map(flat => ({ ...LEVELS.heavy, flat, mult: 1.6 + flat / 10 }));
+    let b;
+    for (const lv of steps) {
+      b = buildWith(heroId, route, enemyIds, overrides, stats, lv);
+      if (key(b) !== key(normal)) break;
+    }
+    return b;
+  }
+
+  function buildWith(heroId, route, enemyIds, overrides, stats, lv) {
     const hero = heroById[heroId];
-    const traits = activeTraits(enemyIds, overrides);
-    const lv = LEVELS[level] || LEVELS.counter;
+    const traits = activeTraits(enemyIds, overrides, lv.wide);
     const pool = D.items.filter(it => !stats || (stats.base[it.id] && stats.base[it.id][1] >= MIN_BASE) || hero.pop[it.id]);
-    const scored = pool.map(it => ({ it, ...scoreItem(it, hero, route, enemyIds, traits, stats, level) }));
+    const scored = pool.map(it => ({ it, ...scoreItem(it, hero, route, enemyIds, traits, stats, lv.wide) }));
     // Apply the counter bonus; on Light only the strongest few counters keep theirs.
     const keep = new Set(scored.filter(x => x.rb > 0).sort((a, b) => b.rb - a.rb).slice(0, lv.keep));
     for (const x of scored) x.s += keep.has(x) ? x.rb * lv.mult + lv.flat : 0;

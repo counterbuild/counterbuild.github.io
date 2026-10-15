@@ -26,6 +26,7 @@ window.RULES = {
       "Crippling Headshot": [4, "Lowers bullet and spirit resist on headshot."],
       "Toxic Bullets": [4, "Bleed scales with their max health, so big targets take more."],
       "Decay": [3, "Damage over time based on current health suits high-health targets."],
+      "Mystic Vulnerability": [3, "Your spirit damage lowers their spirit resist, so big targets melt faster."],
     },
   },
   spirit: {
@@ -35,6 +36,11 @@ window.RULES = {
       "Spirit Resilience": [4, "Extra spirit resist when low on health, which is when you need it."],
       "Counterspell": [4, "A parry that blocks the next ability or item effect."],
       "Colossus": [3, "Gives bullet and spirit resist plus a slow aura around you."],
+      "Silencer": [4, "Bullets build up a silence that cuts off their ability combos."],
+      "Cursed Relic": [4, "Active: silences, disarms and blocks items on their main ability user."],
+      "Spellbreaker": [3, "Cuts the next big hit of spirit damage you take."],
+      "Silence Wave": [3, "Active: silence them before they can land their combo."],
+      "Witchmail": [3, "Heavy spirit hits shorten your cooldowns, so you can fight back."],
     },
   },
   gun: {
@@ -44,6 +50,8 @@ window.RULES = {
       "Bullet Resilience": [4, "Extra bullet resist when low on health."],
       "Plated Armor": [3, "Chance to deflect bullets or negate on-hit effects."],
       "Return Fire": [2, "Fires back at anyone who damages you."],
+      "Metal Skin": [3, "Active: become immune to bullets for a moment when gun heroes focus you."],
+      "Disarming Hex": [3, "Active: disarm their main gun hero for a few seconds."],
     },
   },
   cc: {
@@ -53,6 +61,8 @@ window.RULES = {
       "Reactive Barrier": [4, "Gives a barrier when stunned, silenced or rooted."],
       "Unstoppable": [4, "Active: shrug off stuns, silences, roots and disarms."],
       "Dispel Magic": [4, "Active: clears debuffs when you get locked down."],
+      "Divine Barrier": [3, "Active: clears non-stun debuffs and gives a barrier."],
+      "Indomitable": [3, "Automatically cleanses a debuff when you get hit by one."],
     },
   },
   mobile: {
@@ -61,6 +71,9 @@ window.RULES = {
       "Slowing Bullets": [4, "Builds a slow so they can't just run away."],
       "Silencer": [5, "Bullets build to a silence, shutting down escapes and abilities."],
       "Capacitor": [5, "Strong slow that also blocks stamina and silences movement items."],
+      "Slowing Hex": [3, "Active: slows them and blocks their movement abilities."],
+      "Knockdown": [3, "Active: a delayed stun that lasts longer on targets in the air."],
+      "Cursed Relic": [3, "Active: shuts down their items and abilities so they can't escape."],
     },
   },
 };

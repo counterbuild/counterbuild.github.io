@@ -5,7 +5,7 @@
   const STEPS = ["hero", "enemy", "build"];
 
   // Every visit starts at "pick your hero"; only the last hero and route are remembered.
-  const state = { step: "hero", hero: null, enemies: [], route: null, level: "counter", overrides: {}, swaps: {}, swapKey: "" };
+  const state = { step: "hero", hero: null, enemies: [], route: null, level: "normal", overrides: {}, swaps: {}, swapKey: "" };
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem("build-advisor") || "{}"); } catch (e) {}
   const lastHero = E.heroById[saved.hero] ? saved.hero : null;
@@ -140,14 +140,15 @@
 
   const LEVEL_INFO = {
     light: { name: "Light", hint: "Your hero's usual build, with only one or two answers to their biggest threats." },
-    counter: { name: "Counter", hint: "A balance of your core items and counters to their team." },
+    normal: { name: "Normal", hint: "A balance of your core items and counters to their team." },
     heavy: { name: "Heavy", hint: "Build around their team: counter items come first wherever they fit." },
   };
 
   function renderLevels() {
     $("levels").innerHTML = Object.entries(LEVEL_INFO).map(([k, l]) =>
       `<button class="level" role="radio" aria-checked="${k === state.level}" data-level="${k}">${l.name}</button>`).join("");
-    $("level-hint").textContent = LEVEL_INFO[state.level].hint;
+    const few = state.enemies.length <= 2 ? ` Focused on countering ${state.enemies.map(id => E.heroById[id].name).join(" and ")}.` : "";
+    $("level-hint").textContent = LEVEL_INFO[state.level].hint + few;
   }
 
   const LABEL = { rule: "Counter", tip: "How to Use", route: "Your Route", when: "When to Buy", data: "Data", warn: "Heads Up" };
