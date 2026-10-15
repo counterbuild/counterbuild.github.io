@@ -475,3 +475,8 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
 /* Steps 1 and 2: center the content vertically in the space between header and footer */
 #step-hero, #step-enemy { min-height: calc(100vh - 57px - 136px); min-height: calc(100dvh - 57px - 136px); display: flex; flex-direction: column; justify-content: center; padding-top: 24px; padding-bottom: 24px; }
 #step-hero .step-head, #step-enemy .step-head { margin-bottom: 20px; }
+
+/* Build Details: bigger hero icons in the top bar */
+#step-build .you-chip img, #step-build .enemy-row img { width: 56px; height: 56px; border-radius: 10px; }
+#step-build .enemy-row { gap: 8px; }
+@media (max-width: 640px) { #step-build .you-chip img, #step-build .enemy-row img { width: 44px; height: 44px; } #step-build .enemy-row { gap: 5px; } }
