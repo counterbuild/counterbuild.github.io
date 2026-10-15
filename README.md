@@ -7,7 +7,7 @@ game build. Every item explains what it does, how to use it, when players usuall
 and which enemy heroes it counters. Click a card to flip it and see the item's full stats,
 or click an optional swap to replace it.
 
-**Live site:** https://anping4.github.io/counterbuild/
+**Live site:** https://counterbuild.github.io/
 
 **Status:** beta. Feedback on wrong or weak advice is very welcome.
 
