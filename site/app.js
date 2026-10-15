@@ -151,7 +151,7 @@
     $("level-hint").textContent = LEVEL_INFO[state.level].hint + few;
   }
 
-  const LABEL = { rule: "Counter", tip: "How to Use", route: "Your Route", when: "When to Buy", data: "Data", warn: "Heads Up" };
+  const LABEL = { rule: "Counter", tip: "How to Use", route: "Your Route", when: "When to Buy", timing: "Usually Bought", data: "Data", warn: "Heads Up" };
 
   // An optional swap; clicking it puts this item in the build and moves the current one into the swaps.
   function optionChip(a, origId) {
@@ -199,7 +199,7 @@
   }
 
   function itemCard(x, b, alts, st, origId, swapped) {
-    const notes = E.explain(x, b.hero, state.enemies, b.traits, state.route, st);
+    const notes = E.explain(x, b.hero, state.enemies, b.traits, state.route, st, b.names);
     const why = notes.slice(1);
     const meta = [cap(x.it.slot), "Tier " + x.it.tier, x.it.active ? "Active" : ""].filter(Boolean).join(" · ") + (swapped ? ' <span class="swapped">Swapped In</span>' : "");
     return `<article class="item flip ${x.it.slot}" tabindex="0" role="button" aria-pressed="false" aria-label="${esc(x.it.name)}: tap to see item stats">

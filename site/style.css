@@ -384,3 +384,5 @@ main:has(#step-enemy:not([hidden])) .foot { text-align: center; }
   .levels { width: 100%; }
   .level { flex: 1; padding: 7px 0; }
 }
+.badge.when { background: var(--accent-soft); color: var(--accent); }
+.badge.timing { background: var(--bg); color: var(--muted); }
