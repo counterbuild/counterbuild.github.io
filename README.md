@@ -9,7 +9,8 @@ or click an optional swap to replace it.
 
 **Live site:** https://counterbuild.github.io/
 
-**Status:** beta. Feedback on wrong or weak advice is very welcome.
+**Status:** beta. Feedback on wrong or weak advice is very welcome: use the Feedback button on the site
+(emailed to the maintainer, no account needed) or open an issue here.
 
 ## How it works
 

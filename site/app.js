@@ -296,18 +296,54 @@
   let resizeTimer;
   window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(alignRows, 100); });
 
-  // Feedback link: on a build it opens the "wrong advice" form with the build filled in.
-  const ISSUES = "https://github.com/counterbuild/counterbuild.github.io/issues/new";
-  function updateFeedbackLink() {
-    const a = $("feedback");
-    if (state.step === "build" && state.hero && state.enemies.length) {
-      const build = `${E.heroById[state.hero].name} vs ${state.enemies.map(id => E.heroById[id].name).join(", ")} (${ROUTES[state.route].name}, ${LEVEL_INFO[state.level].name})`;
-      a.href = `${ISSUES}?template=1-wrong-advice.yml&build=${encodeURIComponent(build)}`;
-    } else a.href = `${ISSUES}/choose`;
+  // ---------- feedback box ----------
+  // Messages are emailed to the site owner through FormSubmit (formsubmit.co, free, no account).
+  const FEEDBACK_URL = "https://formsubmit.co/ajax/10cf639f997d890e5c2bb64f9475e12f";
+  const buildContext = () => state.step === "build" && state.hero && state.enemies.length
+    ? `${E.heroById[state.hero].name} vs ${state.enemies.map(id => E.heroById[id].name).join(", ")} (${ROUTES[state.route].name}, ${LEVEL_INFO[state.level].name})`
+    : "";
+
+  function openFeedback() {
+    const ctx = buildContext();
+    $("fb-build").textContent = ctx ? `Sent with your current build: ${ctx}` : "";
+    $("fb-status").textContent = "";
+    $("fb-send").disabled = false;
+    $("fb").showModal();
+    $("fb-msg").focus();
   }
 
+  async function sendFeedback(ev) {
+    ev.preventDefault();
+    const f = new FormData($("fb-form"));
+    if (f.get("website")) return; // spam bot filled the hidden field
+    const msg = String(f.get("message") || "").trim();
+    if (!msg) { $("fb-status").textContent = "Please write a message first."; return; }
+    $("fb-send").disabled = true;
+    $("fb-status").textContent = "Sending…";
+    const type = f.get("type");
+    const payload = {
+      _subject: `CounterBuild feedback: ${type}`, _template: "table", _captcha: "false",
+      type, message: msg, contact: String(f.get("contact") || "").trim() || "(none)",
+      build: buildContext() || "(not on a build page)", page: location.href,
+    };
+    try {
+      if (!FEEDBACK_URL) throw new Error("not connected");
+      const r = await fetch(FEEDBACK_URL, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
+      const res = await r.json().catch(() => ({}));
+      if (!r.ok || String(res.success) !== "true") throw new Error(res.message || r.status);
+      $("fb-form").reset();
+      $("fb-status").textContent = "Thanks! Your feedback was sent.";
+      setTimeout(() => $("fb").open && $("fb").close(), 1600);
+    } catch (e) {
+      $("fb-send").disabled = false;
+      $("fb-status").innerHTML = `Couldn't send right now. You can <a href="https://github.com/counterbuild/counterbuild.github.io/issues/new/choose" target="_blank" rel="noopener">post it on GitHub</a> instead.`;
+    }
+  }
+  $("feedback").addEventListener("click", openFeedback);
+  $("fb-form").addEventListener("submit", sendFeedback);
+  $("fb").addEventListener("click", ev => { if (ev.target === $("fb") || ev.target.closest("[data-fb-close]")) $("fb").close(); });
+
   function render() {
-    updateFeedbackLink();
     if (state.step === "hero") renderHeroStep();
     else if (state.step === "enemy") renderEnemyStep();
     else {
