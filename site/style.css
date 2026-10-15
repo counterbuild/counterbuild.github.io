@@ -386,3 +386,24 @@ main:has(#step-enemy:not([hidden])) .foot { text-align: center; }
 }
 .badge.when { background: var(--accent-soft); color: var(--accent); }
 .badge.timing { background: var(--bg); color: var(--muted); }
+
+/* Step 3 (Item Details): centered like steps 1 and 2 */
+#step-build .matchup { flex-direction: column; justify-content: center; text-align: center; }
+#step-build .matchup .lineup, #step-build .matchup-actions { justify-content: center; }
+#step-build .panel h2 { text-align: center; }
+#step-build .route { text-align: center; align-items: center; }
+#step-build .route-top { justify-content: center; }
+#step-build .level-row { justify-content: center; text-align: center; }
+#step-build .level-hint { flex-basis: 100%; text-align: center; }
+#step-build .phase-head { justify-content: center; gap: 10px; }
+#step-build .items { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+#step-build .items > .item { flex: 0 1 calc((100% - 24px) / 3); min-width: 300px; }
+#step-build .intro { text-align: center; }
+#step-build .bonus { justify-content: center; }
+#step-build .opts-label { text-align: center; }
+#step-build .status { text-align: center; }
+main:has(#step-build:not([hidden])) .foot { text-align: center; }
+@media (max-width: 640px) {
+  #step-build .items > .item { flex-basis: 100%; min-width: 0; }
+}
+#step-build .why p { text-align: center; }
