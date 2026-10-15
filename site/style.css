@@ -471,3 +471,7 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
 .face.back { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: thin; }
 .fb-actions { justify-content: flex-end; }
 .fb-actions #fb-send { width: 100%; padding: 12px; }
+
+/* Steps 1 and 2: center the content vertically in the space between header and footer */
+#step-hero, #step-enemy { min-height: calc(100vh - 57px - 136px); min-height: calc(100dvh - 57px - 136px); display: flex; flex-direction: column; justify-content: center; padding-top: 24px; padding-bottom: 24px; }
+#step-hero .step-head, #step-enemy .step-head { margin-bottom: 20px; }
