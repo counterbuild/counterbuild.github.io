@@ -24,6 +24,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # Tag CSS/JS links with the commit so visitors' browsers fetch the new version after a deploy.
+      - name: Cache-bust asset links
+        run: sed -i -E 's/(href|src)="([a-z]+[.](css|js))"/\1="\2?v=${{ github.sha }}"/g' site/index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

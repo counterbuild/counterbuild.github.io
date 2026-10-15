@@ -407,3 +407,4 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
   #step-build .items > .item { flex-basis: 100%; min-width: 0; }
 }
 #step-build .why p { text-align: center; }
+#step-build .route .mix { align-self: stretch; }

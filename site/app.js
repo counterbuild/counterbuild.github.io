@@ -133,7 +133,6 @@
         <span class="route-top"><span class="route-icon" aria-hidden="true">${ROUTE_ICON[k]}</span><b>${r.name}</b>${k === suggested ? `<em class="suggest">Suggested</em>` : ""}</span>
         <span class="route-blurb">${r.blurb}</span>
         <span class="mix" aria-hidden="true">${bar}</span>
-        <span class="mix-label">${q.weapon} Weapon · ${q.spirit} Spirit · ${q.vitality} Vitality</span>
       </button>`;
     }).join("");
   }
