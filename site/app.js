@@ -199,7 +199,7 @@
   }
 
   function itemCard(x, b, alts, st, origId, swapped) {
-    const notes = E.explain(x, b.hero, state.enemies, b.traits, state.route, st, b.names);
+    const notes = E.explain(x, b.hero, state.enemies, b.traits, state.route, st, b.names, b.usedWhen);
     const why = notes.slice(1);
     const meta = [cap(x.it.slot), "Tier " + x.it.tier, x.it.active ? "Active" : ""].filter(Boolean).join(" · ") + (swapped ? ' <span class="swapped">Swapped In</span>' : "");
     return `<article class="item flip ${x.it.slot}" tabindex="0" role="button" aria-pressed="false" aria-label="${esc(x.it.name)}: tap to see item stats">
@@ -249,6 +249,7 @@
     const cb = currentBuild();
     if (!cb) { $("result").innerHTML = `<div class="empty">Loading live match data…</div>`; return; }
     const { b, st, order } = cb;
+    b.usedWhen = new Set(); // no two cards get the same When to Buy line
     // Swaps only apply to the build they were made on.
     const key = keyNow() + "|" + state.route + "|" + state.level;
     if (state.swapKey !== key) { state.swaps = {}; state.swapKey = key; }

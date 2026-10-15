@@ -148,17 +148,7 @@
     passive: "Passive: it works on its own once you buy it, so there's nothing to press.",
   };
 
-  // "When to Buy": the situation that should make you buy it.
-  // n = hero names, many = more than one hero (for verb agreement).
-  const WHEN_TRAIT = {
-    heal: (n, many) => `Buy it as soon as ${n} ${many ? "start" : "starts"} out-healing your damage in fights.`,
-    tank: (n, many) => `Buy it once ${n} ${many ? "have" : "has"} enough health that your damage stops killing them.`,
-    spirit: n => `Buy it when ability combos from ${n} start taking most of your health.`,
-    gun: (n, many) => `Buy it when ${n} ${many ? "keep" : "keeps"} shooting you down before you can fight back.`,
-    cc: n => `Buy it when stuns and lockdown from ${n} keep catching you.`,
-    mobile: (n, many) => `Buy it when ${n} ${many ? "keep" : "keeps"} escaping your kills.`,
-  };
-
+  // "When to Buy": the situation that should make you buy it (lines live in when.js).
   const WHEN_TIER = {
     1: "In lane, on your first trip to the shop. Sell it later when you need the slot.",
     2: "After your lane items, on your first or second trip back to the shop.",
@@ -166,29 +156,38 @@
     4: "Late game, once your tier 3 items are done, or early if you're far ahead on souls.",
   };
   const nameList = names => names.length <= 1 ? names.join("") : names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+  const fill = (tpl, who, one) => tpl
+    .replace("{who}", who)
+    .replace(/\{has\}/g, one ? "has" : "have").replace(/\{is\}/g, one ? "is" : "are")
+    .replace(/(\w*)\{ies\}/g, (m, stem) => stem + (one ? "ies" : "y"))
+    .replace(/\{es\}/g, one ? "es" : "").replace(/\{s\}/g, one ? "s" : "");
 
-  function whenToBuy(x, enemyIds, traits, buildNames) {
-    // 1. It counters a trait on their team: name the heroes that cause it.
+  // Candidate lines from most to least specific; the first one not already used in this build wins.
+  function whenToBuy(x, enemyIds, traits, buildNames, used) {
+    const cands = [];
     for (const t of Object.keys(R)) {
-      if (!traits.on[t] || !R[t].items[x.it.name] || !WHEN_TRAIT[t]) continue;
+      if (!traits.on[t] || !R[t].items[x.it.name] || !window.WHEN_VS[x.it.name]) continue;
       const who = enemyIds.map(id => heroById[id]).filter(h => heroTraits(h).has(t)).map(h => h.name);
-      return WHEN_TRAIT[t](who.length ? nameList(who) : "their team", who.length !== 1);
+      cands.push(fill(window.WHEN_VS[x.it.name], who.length ? nameList(who) : "their team", who.length === 1));
+      break;
     }
-    // 2. It upgrades from an item in this build: buy that first.
+    if (window.WHEN[x.it.name]) cands.push(window.WHEN[x.it.name]);
     const from = ((x.it.details && x.it.details.from) || []).filter(n => buildNames.has(n));
-    if (from.length) return `Right after ${nameList(from)}: it upgrades from it, so the souls you spent carry over.`;
-    // 3. Otherwise by tier.
-    return WHEN_TIER[x.it.tier];
+    if (from.length) cands.push(`Right after ${nameList(from)}: it upgrades from it, so the souls you spent carry over.`);
+    cands.push(WHEN_TIER[x.it.tier]);
+    const pick = cands.find(c => !used.has(c)) || cands[0];
+    used.add(pick);
+    return pick;
   }
 
-  function explain(x, hero, enemyIds, traits, route, stats, buildNames = new Set()) {
+  function explain(x, hero, enemyIds, traits, route, stats, buildNames = new Set(), used = new Set()) {
     const out = [];
     out.push({ kind: "what", text: window.LINES[x.it.name] || x.it.desc || "A plain stat item. Check the in-game tooltip for exact numbers." });
     for (const [t, rule] of Object.entries(R)) {
       if (traits.on[t] && rule.items[x.it.name]) out.push({ kind: "rule", text: rule.items[x.it.name][1], trait: rule.label });
     }
     out.push({ kind: "tip", text: window.TIPS[x.it.name] || USE_TIP[x.it.active ? "active" : "passive"] });
-    out.push({ kind: "when", text: whenToBuy(x, enemyIds, traits, buildNames) });
+    out.push({ kind: "when", text: whenToBuy(x, enemyIds, traits, buildNames, used) });
     const secs = stats && stats.buy[x.it.id];
     if (secs) out.push({ kind: "timing", text: `Around minute ${Math.max(1, Math.round(secs / 60))} in ${hero.name} games.` });
     if (enemyIds.length && x.md.n >= 1500 && Math.abs(x.md.pts) >= 0.3) {
