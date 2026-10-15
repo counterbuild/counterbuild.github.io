@@ -5,11 +5,11 @@
   const STEPS = ["hero", "enemy", "build"];
 
   // Every visit starts at "pick your hero"; only the last hero and route are remembered.
-  const state = { step: "hero", hero: null, enemies: [], route: null, overrides: {}, swaps: {}, swapKey: "" };
+  const state = { step: "hero", hero: null, enemies: [], route: null, level: "counter", overrides: {}, swaps: {}, swapKey: "" };
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem("build-advisor") || "{}"); } catch (e) {}
   const lastHero = E.heroById[saved.hero] ? saved.hero : null;
-  const save = () => { try { localStorage.setItem("build-advisor", JSON.stringify({ hero: state.hero, route: state.route })); } catch (e) {} };
+  const save = () => { try { localStorage.setItem("build-advisor", JSON.stringify({ hero: state.hero, route: state.route, level: state.level })); } catch (e) {} };
 
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -138,6 +138,18 @@
     }).join("");
   }
 
+  const LEVEL_INFO = {
+    light: { name: "Light", hint: "Your hero's usual build, with only one or two answers to their biggest threats." },
+    counter: { name: "Counter", hint: "A balance of your core items and counters to their team." },
+    heavy: { name: "Heavy", hint: "Build around their team: counter items come first wherever they fit." },
+  };
+
+  function renderLevels() {
+    $("levels").innerHTML = Object.entries(LEVEL_INFO).map(([k, l]) =>
+      `<button class="level" role="radio" aria-checked="${k === state.level}" data-level="${k}">${l.name}</button>`).join("");
+    $("level-hint").textContent = LEVEL_INFO[state.level].hint;
+  }
+
   const LABEL = { rule: "Counter", tip: "How to Use", route: "Your Route", when: "When to Buy", data: "Data", warn: "Heads Up" };
 
   // An optional swap; clicking it puts this item in the build and moves the current one into the swaps.
@@ -225,7 +237,7 @@
     const ready = stats && statsKey === keyNow();
     if (!ready && !statsErr) return null;
     const st = ready ? stats : null;
-    const b = E.build(state.hero, state.route, state.enemies, state.overrides, st);
+    const b = E.build(state.hero, state.route, state.enemies, state.overrides, st, state.level);
     const all = E.buyOrder(b);
     return { b, st, order: all.filter(p => p.steps.length) };
   }
@@ -237,7 +249,7 @@
     if (!cb) { $("result").innerHTML = `<div class="empty">Loading live match data…</div>`; return; }
     const { b, st, order } = cb;
     // Swaps only apply to the build they were made on.
-    const key = keyNow() + "|" + state.route;
+    const key = keyNow() + "|" + state.route + "|" + state.level;
     if (state.swapKey !== key) { state.swaps = {}; state.swapKey = key; }
     // Each card: the item currently picked (original or a swap) plus the others as optional swaps.
     const slot = x => {
@@ -286,7 +298,7 @@
     else if (state.step === "enemy") renderEnemyStep();
     else {
       renderLineup("you-chip-2", "enemy-row");
-      renderRoutes(); renderResult(); refreshStats();
+      renderRoutes(); renderLevels(); renderResult(); refreshStats();
     }
     save();
   }
@@ -330,12 +342,14 @@
       renderEnemyStep();
     } else if (t.dataset.goto) go(t.dataset.goto);
     else if (t.dataset.route) { state.route = t.dataset.route; render(); }
+    else if (t.dataset.level) { state.level = t.dataset.level; render(); }
     else if (t.id === "go-build") go("build");
     else if (t.id === "back-hero" || t.id === "home") go("hero");
     else if (t.id === "clear") { state.enemies = []; state.overrides = {}; renderEnemyStep(); }
   });
 
   if (ROUTES[saved.route]) state.route = saved.route;
+  if (E.LEVELS[saved.level]) state.level = saved.level;
   history.replaceState(null, "", "#hero");
   go("hero", false);
 })();

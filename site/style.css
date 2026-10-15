@@ -371,3 +371,16 @@ main:has(#step-enemy:not([hidden])) .foot { text-align: center; }
 /* "CounterBuild | Beta" */
 .brand-sep { color: var(--muted); font-weight: 400; margin: 0 -1px; opacity: .7; }
 .beta { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); border: 1px solid var(--accent); border-radius: 5px; padding: 1px 6px; line-height: 1.4; }
+
+/* Counter level: compact Light / Counter / Heavy toggle under the routes */
+.level-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.level-row h2 { margin: 0; }
+.levels { display: inline-flex; padding: 3px; gap: 3px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); }
+.level { border: 0; background: none; border-radius: 7px; padding: 6px 16px; font-size: 0.88rem; font-weight: 600; color: var(--muted); }
+.level:hover { color: var(--ink); }
+.level[aria-checked=true] { background: var(--accent); color: var(--accent-ink); }
+.level-hint { margin: 0; font-size: 0.85rem; color: var(--muted); flex: 1; min-width: 220px; }
+@media (max-width: 640px) {
+  .levels { width: 100%; }
+  .level { flex: 1; padding: 7px 0; }
+}
