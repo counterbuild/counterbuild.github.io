@@ -341,6 +341,16 @@
       $("fb-status").textContent = "Couldn't send right now. Please try again in a moment.";
     }
   }
+  // The message hint matches the selected type.
+  const FB_HINT = {
+    "Build advice": "Tell us what's off with a build.",
+    "Bug": "Tell us what broke or doesn't work.",
+    "Idea": "Suggest what would make CounterBuild better.",
+  };
+  const setHint = () => { $("fb-msg").placeholder = FB_HINT[$("fb-form").elements.type.value] || ""; };
+  $("fb-form").addEventListener("change", ev => { if (ev.target.name === "type") setHint(); });
+  $("fb-form").addEventListener("reset", () => setTimeout(setHint));
+  setHint();
   $("feedback").addEventListener("click", openFeedback);
   $("fb-form").addEventListener("submit", sendFeedback);
   $("fb").addEventListener("click", ev => { if (ev.target === $("fb") || ev.target.closest("[data-fb-close]")) $("fb").close(); });
