@@ -450,3 +450,9 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
 .fb-gh { font-size: 0.82rem; color: var(--muted); }
 .fb-status { margin: 0; font-size: 0.88rem; min-height: 1.2em; text-align: center; }
 .fb-status:empty { display: none; }
+
+/* Divider between the steps and the Feedback button, and a filled, readable button */
+.nav-sep { width: 1px; height: 24px; background: var(--muted); opacity: .55; flex: none; }
+.feedback { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.feedback:hover { background: transparent; border-color: var(--accent); color: var(--accent); }
+@media (max-width: 640px) { .nav-sep { height: 20px; } }
