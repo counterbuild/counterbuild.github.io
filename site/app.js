@@ -197,6 +197,10 @@
     return stats.length ? `<p class="bonus">${stats.map(p => `<span><b>${esc(p.value)}</b> ${esc(p.label)}</span>`).join("")}</p>` : "";
   }
 
+  // Each kind of note gets its own slot, so the same note lines up across cards in a row.
+  const NOTE_SLOTS = [["rule", ["rule"]], ["tip", ["tip"]], ["when", ["when"]], ["timing", ["timing"]], ["data", ["data", "warn"]]];
+  const note = n => `<p><span class="badge ${n.kind}">${LABEL[n.kind]}</span>${n.trait ? `<b>${esc(n.trait)}:</b> ` : ""}${esc(n.text)}</p>`;
+
   function itemCard(x, b, alts, st, origId, swapped) {
     const notes = E.explain(x, b.hero, state.enemies, b.traits, state.route, st, b.names, b.usedWhen);
     const why = notes.slice(1);
@@ -217,7 +221,7 @@
             ${bonusStats(x.it)}
           </div>
           <div class="why">
-            ${why.map(n => `<p><span class="badge ${n.kind}">${LABEL[n.kind]}</span>${n.trait ? `<b>${esc(n.trait)}:</b> ` : ""}${esc(n.text)}</p>`).join("")}
+            ${NOTE_SLOTS.map(([slot, kinds]) => `<div class="note-slot" data-slot="${slot}">${why.filter(n => kinds.includes(n.kind)).map(note).join("")}</div>`).join("")}
           </div>
           ${alts && alts.length ? `<div class="opts"><span class="opts-label">Optional Swap</span>${alts.map(a => optionChip(a, origId)).join('<span class="or-word">or</span>')}</div>` : ""}
         </div>
@@ -271,14 +275,12 @@
 
   // Cards side by side should have their notes start at the same height, even when one
   // description is one line and its neighbor's is two. Pad short descriptions per row.
+  // Cards side by side line up section by section: header, description, bonus stats, then each
+  // kind of note. Each block is padded to the tallest matching block in its row, in order.
+  const ALIGN = [".item-head", ".tagline", ".intro", ...NOTE_SLOTS.map(([slot]) => `.note-slot[data-slot="${slot}"]`)];
   function alignRows() {
-    // First the descriptions, so the bonus stats line up; then the description + stats
-    // block, so the notes line up.
-    for (const sel of [".tagline", ".intro"]) {
-      const els = [...document.querySelectorAll("#result .item " + sel)];
-      els.forEach(t => (t.style.minHeight = ""));
-    }
-    for (const sel of [".tagline", ".intro"]) {
+    for (const sel of ALIGN) document.querySelectorAll("#result .item " + sel).forEach(t => (t.style.minHeight = ""));
+    for (const sel of ALIGN) {
       const rows = new Map();
       for (const t of document.querySelectorAll("#result .item " + sel)) {
         const card = t.closest(".item"), key = card.parentElement.dataset.row + ":" + card.offsetTop;

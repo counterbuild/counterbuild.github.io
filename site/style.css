@@ -409,3 +409,9 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
 #step-build .why p { text-align: center; }
 #step-build .route .mix { align-self: stretch; }
 #step-build .you-chip span { display: none; }
+
+/* Notes sit in fixed slots; spacing lives on filled slots so empty ones take no room */
+.why { display: block; }
+.note-slot { display: grid; gap: 8px; }
+.note-slot:not(:empty) { padding-bottom: 8px; }
+.item-head { box-sizing: border-box; }
