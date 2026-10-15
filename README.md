@@ -7,6 +7,8 @@ game build. Every item explains what it does, how to use it, when players usuall
 and which enemy heroes it counters. Click a card to flip it and see the item's full stats,
 or click an optional swap to replace it.
 
+**Live site:** https://anping4.github.io/counterbuild/
+
 **Status:** beta. Feedback on wrong or weak advice is very welcome.
 
 ## How it works
@@ -36,8 +38,8 @@ This downloads the latest heroes and items from deadlock-api.com and rebuilds `s
 
 ## Hosting
 
-The `site/` folder is static, so any free static host works (GitHub Pages, Cloudflare Pages,
-Netlify). Point the host at the `site` folder.
+The site is hosted on GitHub Pages. Every push to `main` publishes the `site/` folder
+automatically (see `.github/workflows/pages.yml`).
 
 ---
 
