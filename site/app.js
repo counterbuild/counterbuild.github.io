@@ -177,7 +177,7 @@
             ${p.important.length ? `<div class="bstats">${p.important.map(stat).join("")}</div>` : ""}
             ${p.props.length ? `<ul class="bprops">${p.props.map(line).join("")}</ul>` : ""}`).join("")}
         </section>`).join("") || `<p class="muted">No extra details for this item.</p>`}
-        ${d.from.length ? `<p class="brel"><span>Built From</span>${d.from.map(esc).join(", ")}</p>` : ""}
+        ${d.from.length ? `<div class="brel"><span>Built From</span><div class="up-list">${d.from.map(upChip).join('<span class="or-word">and</span>')}</div></div>` : ""}
         ${d.upgradesTo.length ? `<div class="brel"><span>Upgrades To</span><div class="up-list">${d.upgradesTo.map(upChip).join('<span class="or-word">or</span>')}</div></div>` : ""}
       </div>
       <span class="flip-hint">↻ Tap to flip back</span>`;

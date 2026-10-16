@@ -244,6 +244,9 @@ window.LINES = {
   "Long Range": "Bonus weapon damage when you're far from the target.",
   "Hunter's Aura": "Nearby enemies lose bullet resist and fire rate.",
   "Berserker": "Weapon damage rises the more damage you take.",
+  "High-Velocity Rounds": "Faster bullets and extra weapon damage, so long-range shots land more easily.",
+  "Extra Charge": "Adds a charge to your abilities that use charges, plus spirit power for them.",
+  "Rapid Recharge": "Abilities with charges get extra charges, recharge faster and gain spirit power.",
 };
 
 // The ability (key 1-3) each hero usually imbues with damage and cast items like Surge of Power,

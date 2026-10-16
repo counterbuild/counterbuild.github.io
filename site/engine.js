@@ -223,7 +223,9 @@
   function explain(x, hero, enemyIds, traits, route, stats, buildNames = new Set(), used = new Set()) {
     const out = [];
     // Hand-written line, else the first sentence of the game's own description.
-    const gameDesc = (x.it.desc || "").split(/(?<=\.)\s/)[0];
+    // Items with no description use the first effect text from their tooltip instead.
+    const effect = ((x.it.details && x.it.details.sections) || []).flatMap(sec => sec.parts.map(p => p.text)).find(Boolean) || "";
+    const gameDesc = (x.it.desc || effect.replace(/\*\*/g, "")).split(/(?<=\.)\s/)[0];
     out.push({ kind: "what", text: window.LINES[x.it.name] || gameDesc || "A plain stat item. Check the in-game tooltip for exact numbers." });
     // One short Counter line: which traits it answers and which enemy heroes bring them.
     const counters = Object.entries(R).filter(([t, rule]) => traits.on[t] && rule.items[x.it.name] &&
