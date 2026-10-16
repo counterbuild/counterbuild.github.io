@@ -272,7 +272,10 @@
   // description is one line and its neighbor's is two. Pad short descriptions per row.
   // Cards side by side line up section by section: header, description, bonus stats, then each
   // kind of note. Each block is padded to the tallest matching block in its row, in order.
-  const ALIGN = [".item-head", ".tagline", ".intro", ...NOTE_SLOTS.map(([slot]) => `.note-slot[data-slot="${slot}"]`)];
+  // Only the header and description line up across a row, so every card's notes start at the
+  // same height. The notes themselves flow with even spacing, and any spare room collects at
+  // the bottom above the swap box instead of opening gaps between notes.
+  const ALIGN = [".item-head", ".tagline", ".intro"];
   function alignRows() {
     for (const sel of ALIGN) document.querySelectorAll("#result .item " + sel).forEach(t => (t.style.minHeight = ""));
     for (const sel of ALIGN) {

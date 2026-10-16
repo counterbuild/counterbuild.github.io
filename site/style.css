@@ -660,10 +660,10 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
 #step-build .route .mix { align-self: stretch; }
 #step-build .you-chip span { display: none; }
 
-/* Notes sit in fixed slots; spacing lives on filled slots so empty ones take no room */
-.why { display: block; }
-.note-slot { display: grid; gap: 8px; }
-.note-slot:not(:empty) { padding-bottom: 8px; }
+/* Notes flow one after another with even spacing; empty slots take no room */
+.why { display: flex; flex-direction: column; gap: 10px; flex: 0 0 auto; }
+.note-slot { display: grid; gap: 10px; }
+.note-slot:empty { display: none; }
 .item-head { box-sizing: border-box; }
 
 /* Feedback button in the header */
