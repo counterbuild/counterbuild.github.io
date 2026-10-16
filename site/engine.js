@@ -244,15 +244,13 @@
     const effect = ((x.it.details && x.it.details.sections) || []).flatMap(sec => sec.parts.map(p => p.text)).find(Boolean) || "";
     const gameDesc = (x.it.desc || effect.replace(/\*\*/g, "")).split(/(?<=\.)\s/)[0];
     out.push({ kind: "what", text: window.LINES[x.it.name] || gameDesc || "A plain stat item. Check the in-game tooltip for exact numbers." });
-    // One short Counter line: which traits it answers and which enemy heroes bring them.
-    const counters = Object.entries(R).filter(([t, rule]) => traits.on[t] && rule.items[x.it.name] &&
-      (t !== "cc" || bringers(t, x.it.name, enemyIds).length)).map(([t, rule]) => {
-      const who = bringers(t, x.it.name, enemyIds).map(h => h.name);
-      return who.length ? `${rule.label} (${who.join(", ")})` : rule.label;
-    });
-    // Some items counter more than one trait; describe those in one plain line instead.
+    // One short Counter line: the enemy heroes it answers (the trait name only if none are known).
+    const hits = Object.entries(R).filter(([t, rule]) => traits.on[t] && rule.items[x.it.name] &&
+      (t !== "cc" || bringers(t, x.it.name, enemyIds).length));
+    const who = [...new Set(hits.flatMap(([t]) => bringers(t, x.it.name, enemyIds).map(h => h.name)))];
+    // Counterspell answers any ability, so it gets one plain line instead.
     const COUNTER_TEXT = { "Counterspell": "All enemy abilities" };
-    if (counters.length) out.push({ kind: "rule", text: COUNTER_TEXT[x.it.name] || counters.join(" · ") });
+    if (hits.length) out.push({ kind: "rule", text: COUNTER_TEXT[x.it.name] || (who.length ? who.join(", ") : hits.map(([, rule]) => rule.label).join(" · ")) });
     const tip = kitText(window.TIPS_KIT[x.it.name], hero) || kitText(window.TIPS[x.it.name], hero);
     out.push({ kind: "tip", text: tip || USE_TIP[x.it.active ? "active" : "passive"] });
     out.push({ kind: "when", text: whenToBuy(x, hero, enemyIds, traits, buildNames, used) });
