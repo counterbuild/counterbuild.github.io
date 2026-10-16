@@ -18,7 +18,8 @@
     if (h.type === "brawler" || /Tank|Rock Solid|Can't Kill/.test(tags)) t.add("tank");
     if (h.type === "mystic") t.add("spirit");
     if (h.type === "marksman" || h.type === "assassin") t.add("gun");
-    if (h.type === "assassin" || /Mobility|High-?[Ff]lying|Slippery|Stealth|Acrobatic|Evasive|Nimble|Soaring|Traveller|Slither/.test(tags)) t.add("mobile");
+    // Slippery: a basic ability that moves them (see HERO_MOBILITY), not just an ultimate.
+    if ((window.HERO_MOBILITY[h.name] || []).some(a => a !== (h.abilities || [])[3])) t.add("mobile");
     if (window.HERO_TRAITS.heal.includes(h.name) || /Lifesteal/.test(tags)) t.add("heal");
     // Lockdown on a basic ability, not just the ultimate.
     if ((window.HERO_CC[h.name] || []).some(([a]) => a !== (h.abilities || [])[3])) t.add("cc");
@@ -93,25 +94,27 @@
     // than going from 40% to 60%.
     let s = Math.min(7, 2.2 * Math.log2(1 + use / 4));
     const r = ROUTES[route];
-    s += r.bias[item.slot] || 0;
+    s += 0.5 * (r.bias[item.slot] || 0); // half strength: real usage already shapes the build
     for (const tg of tagOf[item.name] || []) s += r.tags[tg] || 0;
     let rb = 0; // bonus for countering the enemy team
+    const hits = []; // enemy traits this item answers
     for (const [t, rule] of Object.entries(R)) {
       // Lockdown items only count when an enemy has lockdown they can answer.
       const answers = t !== "cc" || !enemyIds.length || bringers(t, item.name, enemyIds).length > 0;
       const hit = traits.on[t] && answers ? rule.items[item.name] : null;
       // Normally only the two strongest counters per trait get full credit, so one trait can't fill the build.
       const full = Object.keys(rule.items).indexOf(item.name) < 2;
-      if (hit) rb += hit[0] * (full ? 1 : 0.5);
+      if (hit) { rb += hit[0] * (full ? 1 : 0.5); hits.push(t); }
     }
     const md = stats && enemyIds.length ? matchupDelta(item, enemyIds, stats) : { pts: 0, score: 0, n: 0 };
     // Matchup data on items the hero rarely buys is noisy, so it counts for less.
     md.score *= Math.min(1, use / 10);
     s += 1.5 * md.score;
-    return { s, rb, md, use };
+    return { s, rb, md, use, hits };
   }
 
   const TIER_MIX = { 4: 4, 3: 5, 2: 3 };
+  const MAX_COUNTERS = 5; // at most this many items get a counter bonus in one build
   const SWAP_GAP = 2.5; // how far below the pick a swap may score
   const SWAP_USE = 8;   // % of the hero's games a non-counter swap must show up in
   const SWAP_USE_COUNTER = 3; // ...and a counter swap
@@ -154,24 +157,64 @@
     const max = stats ? Math.max(0, ...Object.values(stats.base).map(v => v[1])) : 0;
     const scored = D.items.map(it => ({ it, ...scoreItem(it, hero, route, enemyIds, traits, stats) }))
       .filter(x => fits(x, hero, route, stats, max, relax));
-    for (const x of scored) if (x.rb > 0) x.s += x.rb + flat;
+    // Counters are capped so the build stays a real build: each enemy trait first gets its single
+    // best answer (counter value plus how much this hero buys it), then the rest compete for what's
+    // left, up to MAX_COUNTERS. A picked counter that still doesn't make the build hands its place to
+    // the next one. Counters outside the cap are scored like any other item. Lane items aren't capped.
+    const baseS = new Map(scored.map(x => [x, x.s])), rawRb = new Map(scored.map(x => [x, x.rb]));
+    const value = x => baseS.get(x) + rawRb.get(x);
+    const cands = scored.filter(x => rawRb.get(x) > 0 && x.it.tier >= 2).sort((p, q) => value(q) - value(p));
+    const onTraits = Object.keys(traits.on).filter(t => traits.on[t]).sort((p, q) => (traits.counts[q] || 0) - (traits.counts[p] || 0));
+    const picked = new Set(), dropped = new Set();
+    // Round-robin over the enemy's traits (most common first): every trait gets an answer before
+    // any trait gets a second. Each trait's answer is judged on that trait alone, so an item that
+    // happens to touch several traits doesn't beat the item this hero actually buys against it.
+    const forTrait = (x, t) => baseS.get(x) + R[t].items[x.it.name][0];
+    const topUp = () => {
+      for (let round = 0; picked.size < MAX_COUNTERS && round < MAX_COUNTERS; round++) {
+        for (const t of onTraits) {
+          if (picked.size >= MAX_COUNTERS) break;
+          if ([...picked].filter(x => x.hits.includes(t)).length > round) continue;
+          const best = cands.filter(x => x.hits.includes(t) && !picked.has(x) && !dropped.has(x))
+            .sort((p, q) => forTrait(q, t) - forTrait(p, t))[0];
+          if (best) picked.add(best);
+        }
+      }
+    };
     // Route quotas are caps with one slot of slack each, so a hero who rarely buys good items
     // of one type isn't forced to fill that type anyway.
-    const quota = Object.fromEntries(Object.entries(ROUTES[route].quota).map(([k, v]) => [k, v + 1]));
-    const chosen = [];
-    for (const tier of [4, 3, 2]) {
-      let need = TIER_MIX[tier];
-      for (const x of scored.filter(x => x.it.tier === tier).sort((a, b) => b.s - a.s)) {
-        if (!need) break;
-        if (quota[x.it.slot] > 0) { chosen.push(x); quota[x.it.slot]--; need--; }
+    const choose = () => {
+      const quota = Object.fromEntries(Object.entries(ROUTES[route].quota).map(([k, v]) => [k, v + 1]));
+      const chosen = [];
+      // Cheaper tiers pick first, so early items like Slowing Hex aren't squeezed out of their slot
+      // type by expensive late items.
+      for (const tier of [2, 3, 4]) {
+        let need = TIER_MIX[tier];
+        for (const x of scored.filter(x => x.it.tier === tier).sort((p, q) => q.s - p.s)) {
+          if (!need) break;
+          if (quota[x.it.slot] > 0) { chosen.push(x); quota[x.it.slot]--; need--; }
+        }
       }
+      // Fill leftover slots with the best remaining item of any tier 2-4.
+      for (const x of scored.filter(x => x.it.tier >= 2 && !chosen.includes(x)).sort((p, q) => q.s - p.s)) {
+        if (chosen.length >= 12) break;
+        if (quota[x.it.slot] > 0) { chosen.push(x); quota[x.it.slot]--; }
+      }
+      return chosen;
+    };
+    let chosen;
+    for (let round = 0; round < 4; round++) {
+      topUp();
+      for (const x of scored) {
+        x.rb = x.it.tier === 1 || picked.has(x) ? rawRb.get(x) : 0;
+        x.s = baseS.get(x) + (x.rb > 0 ? x.rb + flat : 0);
+      }
+      chosen = choose();
+      const missed = [...picked].filter(x => !chosen.includes(x));
+      if (!missed.length) break;
+      for (const x of missed) { picked.delete(x); dropped.add(x); }
     }
-    // Fill leftover slots with the best remaining item of any tier 2-4.
-    for (const x of scored.filter(x => x.it.tier >= 2 && !chosen.includes(x)).sort((a, b) => b.s - a.s)) {
-      if (chosen.length >= 12) break;
-      if (quota[x.it.slot] > 0) { chosen.push(x); quota[x.it.slot]--; }
-    }
-    const lane = scored.filter(x => x.it.tier === 1).sort((a, b) => b.s - a.s).slice(0, 3);
+    const lane = scored.filter(x => x.it.tier === 1).sort((p, q) => q.s - p.s).slice(0, 3);
     const taken = new Set([...chosen, ...lane]);
     // Optional swaps are real alternatives only: same slot and tier, scored close to the pick, and
     // either bought regularly by this hero or a counter to this team that they still buy sometimes. Each is offered once per build.
@@ -182,7 +225,12 @@
         .sort((a, b) => b.s - a.s).slice(0, 2);
       alts[x.it.id].forEach(a => taken.add(a));
     }
-    chosen.sort((a, b) => a.it.tier - b.it.tier || b.s - a.s);
+    // Phases follow when players really buy each item (live average buy time; tier as a fallback),
+    // so a rushed power spike lands in Early Game. The shape stays 3 early, 5 mid, 4 late.
+    const when = x => (stats && stats.buy && stats.buy[x.it.id]) || 600 + 480 * x.it.tier;
+    chosen.sort((a, b) => when(a) - when(b) || a.it.tier - b.it.tier);
+    chosen.forEach((x, i) => (x.phase = i < TIER_MIX[2] ? "early" : i < TIER_MIX[2] + TIER_MIX[3] ? "mid" : "late"));
+    lane.sort((a, b) => when(a) - when(b));
     const names = new Set([...chosen, ...lane].map(x => x.it.name));
     return { hero, traits, lane, chosen, alts, names };
   }
@@ -323,9 +371,9 @@
   function buyOrder(b) {
     const phases = [
       { key: "lane", items: b.lane },
-      { key: "early", items: b.chosen.filter(x => x.it.tier === 2) },
-      { key: "mid", items: b.chosen.filter(x => x.it.tier === 3) },
-      { key: "late", items: b.chosen.filter(x => x.it.tier === 4) },
+      { key: "early", items: b.chosen.filter(x => x.phase === "early") },
+      { key: "mid", items: b.chosen.filter(x => x.phase === "mid") },
+      { key: "late", items: b.chosen.filter(x => x.phase === "late") },
     ];
     const held = []; // { x, flex }
     const out = [];

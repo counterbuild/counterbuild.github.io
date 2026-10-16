@@ -96,11 +96,11 @@ window.RULES = {
     label: "Gun Damage", need: 3,
     items: {
       "Weapon Shielding": [5, "Gives a barrier when you take a burst of weapon damage."],
+      "Disarming Hex": [4, "Active: disarm their main gun hero for a few seconds."],
       "Bullet Resilience": [4, "Bullet resist at all times, plus more when you're below half health."],
+      "Metal Skin": [3, "Active: become immune to bullets for a moment when gun heroes focus you."],
       "Plated Armor": [3, "Chance to deflect bullets or negate on-hit effects."],
       "Return Fire": [2, "Fires back at anyone who damages you."],
-      "Metal Skin": [3, "Active: become immune to bullets for a moment when gun heroes focus you."],
-      "Disarming Hex": [3, "Active: disarm their main gun hero for a few seconds."],
     },
   },
   cc: {
@@ -115,13 +115,13 @@ window.RULES = {
     },
   },
   mobile: {
-    label: "Slippery / Hard to Catch", need: 2,
+    label: "Slippery / Hard to Catch", need: 3,
     items: {
-      "Slowing Bullets": [4, "Builds a slow so they can't just run away."],
+      "Slowing Hex": [5, "Active: slows them and blocks their movement abilities."],
       "Silencer": [5, "Bullets build to a silence, shutting down escapes and abilities."],
-      "Capacitor": [5, "Strong slow that also blocks stamina and silences movement items."],
-      "Slowing Hex": [3, "Active: slows them and blocks their movement abilities."],
-      "Knockdown": [3, "Active: a delayed stun that lasts longer on targets in the air."],
+      "Slowing Bullets": [4, "Builds a slow so they can't just run away."],
+      "Capacitor": [4, "Strong slow that also blocks stamina and silences movement items."],
+      "Knockdown": [4, "Active: a delayed stun that lasts longer on targets in the air."],
       "Cursed Relic": [3, "Active: shuts down their items and abilities so they can't escape."],
     },
   },
@@ -277,4 +277,19 @@ window.TRAIT_ROUTE = {
   heal: { gun: 0.04, hybrid: 0.02 },
   cc: { tank: 0.05, support: 0.03 },
   mobile: { spirit: 0.04, support: 0.03 },
+};
+
+// Abilities that move the hero (dashes, teleports, leaps, flight, grapples, burrows), picked by hand
+// from each ability's in-game description. A hero counts as slippery for the counter rules when one
+// of their basic abilities is here (an ultimate alone doesn't count).
+window.HERO_MOBILITY = {
+  "Infernus": ["Flame Dash"], "Vindicta": ["Flight"], "Abrams": ["Shoulder Charge"],
+  "Wraith": ["Project Mind"], "Dynamo": ["Quantum Entanglement"], "Kelvin": ["Ice Path"],
+  "Haze": ["Smoke Bomb"], "Holliday": ["Bounce Pad"], "Calico": ["Leaping Slash"],
+  "Grey Talon": ["Rain of Arrows"], "Mo & Krill": ["Burrow"], "Shiv": ["Slice and Dice"],
+  "Yamato": ["Flying Slash"], "Lash": ["Grapple", "Ground Strike"],
+  "Pocket": ["Flying Cloak"], "Mirage": ["Traveler"], "Vyper": ["Slither"],
+  "Mina": ["Sanguine Retreat"], "Apollo": ["Flawless Advance", "Disengaging Sigil"],
+  "Deadman Danny": ["Chimera Mk1"], "Rem": ["Tag Along"], "The Doorman": ["Doorway"],
+  "Billy": ["Rising Ram"], "Rat King": ["Rat Swarm"], "Paradox": ["Paradoxical Swap"],
 };
