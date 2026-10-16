@@ -825,3 +825,10 @@ html { scrollbar-gutter: stable; }
   .route:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 14px -3px var(--accent); }
 }
 .route:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 14px -3px var(--accent); }
+
+/* Share Link button: icon + label */
+.share { display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 640px) {
+  .matchup-actions { gap: 6px; }
+  .matchup-actions .btn { white-space: nowrap; padding: 7px 4px; font-size: 0.8rem; justify-content: center; }
+}

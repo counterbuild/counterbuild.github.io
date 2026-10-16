@@ -312,6 +312,45 @@
   let resizeTimer;
   window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(alignRows, 100); });
 
+  // ---------- share link ----------
+  // The link holds the hero, enemy team, route and any swaps you picked, so it opens the same build.
+  function shareLink() {
+    const p = new URLSearchParams({ h: state.hero, e: state.enemies.join(","), r: state.route });
+    const swaps = Object.entries(state.swaps).map(([from, to]) => from + ":" + to).join(",");
+    if (swaps) p.set("s", swaps);
+    return location.origin + location.pathname + "?" + p.toString().replace(/%2C/g, ",").replace(/%3A/g, ":") + "#build";
+  }
+  function readShareLink() {
+    const p = new URLSearchParams(location.search);
+    const hero = +p.get("h");
+    if (!E.heroById[hero]) return null;
+    const enemies = [...new Set((p.get("e") || "").split(",").map(Number))].filter(id => E.heroById[id] && id !== hero).slice(0, 6);
+    if (!enemies.length) return null;
+    const route = ROUTES[p.get("r")] ? p.get("r") : E.defaultRoute(hero);
+    const swaps = {};
+    for (const pair of (p.get("s") || "").split(",")) {
+      const [from, to] = pair.split(":").map(Number);
+      if (from && to) swaps[from] = to;
+    }
+    // swapKey matches renderResult's key so the swaps are kept for this exact build.
+    return { hero, enemies, route, swaps, swapKey: hero + "|" + enemies.join(",") + "|" + route };
+  }
+  async function share(btn) {
+    const url = shareLink(), label = btn.querySelector("span");
+    try {
+      // Phones get the system share sheet; everywhere else the link is copied.
+      if (navigator.share && matchMedia("(hover: none)").matches) { await navigator.share({ title: "CounterBuild", url }); return; }
+      await navigator.clipboard.writeText(url);
+      label.textContent = "Link Copied";
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // closed the share sheet
+      window.prompt("Copy this link:", url);
+      return;
+    }
+    clearTimeout(share.t);
+    share.t = setTimeout(() => (label.textContent = "Share Link"), 2000);
+  }
+
   // ---------- feedback box ----------
   // Messages are emailed to the site owner through FormSubmit (formsubmit.co, free, no account).
   const FEEDBACK_URL = "https://formsubmit.co/ajax/10cf639f997d890e5c2bb64f9475e12f";
@@ -446,11 +485,20 @@
       t.closest(".phase").classList.toggle("collapsed", !open);
     }
     else if (t.id === "go-build") go("build");
+    else if (t.id === "share") share(t);
     else if (t.id === "back-hero" || t.id === "home") go("hero");
     else if (t.id === "clear") { state.enemies = []; state.overrides = {}; renderEnemyStep(); }
   });
 
   if (ROUTES[saved.route]) state.route = saved.route;
-  history.replaceState(null, "", "#hero");
-  go("hero", false);
+  // A shared link (?h=hero&e=enemies&r=route&s=swaps) opens straight to that build.
+  const shared = readShareLink();
+  if (shared) {
+    Object.assign(state, shared);
+    history.replaceState(null, "", location.pathname + "#build");
+    go("build", false);
+  } else {
+    history.replaceState(null, "", location.pathname + "#hero");
+    go("hero", false);
+  }
 })();
