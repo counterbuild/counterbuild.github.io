@@ -78,20 +78,35 @@
     return wsum ? { pts: 100 * sum / wsum, score: 100 * sum / enemyIds.length, n } : { pts: 0, score: 0, n: 0 };
   }
 
+  // How often this hero buys the item, as a % of games (vs their most-bought item) when we have
+  // live data, else the saved popular-build %.
+  function usage(item, hero, stats) {
+    const pop = hero.pop[item.id] || 0;
+    if (!stats) return pop;
+    if (stats.max === undefined) stats.max = Math.max(0, ...Object.values(stats.base).map(v => v[1]));
+    return Math.max(pop, stats.max ? 100 * ((stats.base[item.id] || [0, 0])[1]) / stats.max : 0);
+  }
+
   function scoreItem(item, hero, route, enemyIds, traits, stats) {
-    let s = Math.min(6, (hero.pop[item.id] || 0) / 10); // this hero's staples first
+    const use = usage(item, hero, stats);
+    // This hero's staples first. Log scale, so going from 3% to 20% of games matters far more
+    // than going from 40% to 60%.
+    let s = Math.min(7, 2.2 * Math.log2(1 + use / 4));
     const r = ROUTES[route];
     s += r.bias[item.slot] || 0;
     for (const tg of tagOf[item.name] || []) s += r.tags[tg] || 0;
     let rb = 0; // bonus for countering the enemy team
     for (const [t, rule] of Object.entries(R)) {
       // Lockdown items only count when an enemy has lockdown they can answer.
-      const hit = traits.on[t] && rule.items[item.name] && (t !== "cc" || !enemyIds.length || bringers(t, item.name, enemyIds).length);
+      const answers = t !== "cc" || !enemyIds.length || bringers(t, item.name, enemyIds).length > 0;
+      const hit = traits.on[t] && answers ? rule.items[item.name] : null;
       // Normally only the two strongest counters per trait get full credit, so one trait can't fill the build.
       const full = Object.keys(rule.items).indexOf(item.name) < 2;
       if (hit) rb += hit[0] * (full ? 1 : 0.5);
     }
     const md = stats && enemyIds.length ? matchupDelta(item, enemyIds, stats) : { pts: 0, score: 0, n: 0 };
+    // Matchup data on items the hero rarely buys is noisy, so it counts for less.
+    md.score *= Math.min(1, use / 10);
     s += 1.5 * md.score;
     return { s, rb, md };
   }
@@ -137,7 +152,9 @@
     const scored = D.items.map(it => ({ it, ...scoreItem(it, hero, route, enemyIds, traits, stats) }))
       .filter(x => fits(x, hero, route, stats, max, relax));
     for (const x of scored) if (x.rb > 0) x.s += x.rb + flat;
-    const quota = { ...ROUTES[route].quota };
+    // Route quotas are caps with one slot of slack each, so a hero who rarely buys good items
+    // of one type isn't forced to fill that type anyway.
+    const quota = Object.fromEntries(Object.entries(ROUTES[route].quota).map(([k, v]) => [k, v + 1]));
     const chosen = [];
     for (const tier of [4, 3, 2]) {
       let need = TIER_MIX[tier];
