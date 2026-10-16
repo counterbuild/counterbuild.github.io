@@ -358,6 +358,18 @@
     card.setAttribute("aria-pressed", on);
     card.querySelector(".front").setAttribute("aria-hidden", on);
     card.querySelector(".back").setAttribute("aria-hidden", !on);
+    // A tall stat side hangs below the card: leave room for it at the end of the build,
+    // then bring all of it on screen.
+    const res = $("result");
+    res.style.paddingBottom = "";
+    const end = res.getBoundingClientRect().bottom;
+    const hang = Math.max(0, ...[...res.querySelectorAll(".item.flipped .back")].map(bk => bk.getBoundingClientRect().bottom - end));
+    if (hang) res.style.paddingBottom = hang + 12 + "px";
+    if (on) {
+      const r = card.querySelector(".back").getBoundingClientRect();
+      const over = r.bottom - window.innerHeight + 12;
+      if (over > 0) window.scrollBy({ top: Math.min(over, r.top - 70), behavior: "smooth" });
+    }
   }
   function swap(chip) {
     const orig = +chip.dataset.swapOrig, to = +chip.dataset.swapTo;

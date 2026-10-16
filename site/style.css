@@ -716,9 +716,13 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
 /* Counter lines stay short */
 .note-slot[data-slot=rule] p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 
-/* Cards are sized by their front; a longer stat side scrolls inside the card instead of stretching it */
+/* Cards are sized by their front. A longer stat side grows down over the cards below
+   while it's flipped, so it never needs its own scrollbar. */
+.item.flip { position: relative; }
+.item.flip.flipped { z-index: 5; }
 .flip-inner { position: relative; }
-.face.back { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: thin; }
+.face.back { position: absolute; top: 0; left: 0; right: 0; min-height: 100%; pointer-events: none; }
+.flipped .face.back { pointer-events: auto; box-shadow: 0 14px 34px -8px rgba(0, 0, 0, 0.65); }
 .fb-actions { justify-content: flex-end; }
 .fb-actions #fb-send { width: 100%; padding: 12px; }
 
