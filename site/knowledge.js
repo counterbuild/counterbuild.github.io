@@ -2,9 +2,27 @@
 // the API data is only used as evidence on top.
 
 // Extra enemy traits that can't be derived from hero type/tags. Edit freely.
+// heal: heroes whose own kit heals them (or their team) enough that healing reduction pays off.
 window.HERO_TRAITS = {
-  heal: ["Lady Geist", "Dynamo", "Abrams", "Paige", "Rem"],
-  cc: ["Bebop", "Lash", "Dynamo", "Warden", "Kelvin", "Mo & Krill", "Paradox", "Grey Talon"],
+  heal: ["Lady Geist", "Dynamo", "Abrams", "Paige", "Rem", "Mo & Krill", "Lash", "Yamato", "Ivy", "Kelvin", "McGinnis", "Warden"],
+};
+
+// Abilities that actually lock you down (stun, sleep, root, tether, silence, disarm, petrify, hex,
+// lift, knock-up, pull or grab), from each ability's in-game description. Basic abilities first,
+// ultimate last. Heroes whose kit only slows (Kelvin, Paradox, McGinnis...) aren't listed.
+// A hero counts as lockdown for the counter rules when one of their basic abilities is here.
+window.HERO_CC = {
+  "Infernus": ["Concussive Combustion"], "Seven": ["Static Charge"], "Vindicta": ["Stake"],
+  "Abrams": ["Shoulder Charge", "Seismic Impact"], "Wraith": ["Telekinesis"], "Dynamo": ["Kinetic Pulse", "Singularity"],
+  "Haze": ["Sleep Dagger"], "Holliday": ["Powder Keg", "Spirit Lasso"], "Bebop": ["Grapple Arm"],
+  "Grey Talon": ["Spirit Snare", "Guided Owl"], "Mo & Krill": ["Burrow", "Sand Blast", "Combo"],
+  "Ivy": ["Stone Form", "Air Drop"], "Warden": ["Binding Word"], "Lash": ["Death Slam"],
+  "Viscous": ["Puddle Punch", "Goo Ball"], "Mirage": ["Dust Devil"], "Vyper": ["Petrifying Bola"],
+  "Sinclair": ["Rabbit Hex"], "Mina": ["Nox Nostra"], "Venator": ["Gutshot", "Hex-Lined Snap Trap"],
+  "Victor": ["Shocking Reanimation"], "Paige": ["Captivating Read", "Rallying Charge"],
+  "The Doorman": ["Luggage Cart", "Hotel Guest"], "Billy": ["Bashdown", "Chain Gang"], "Graves": ["Grasping Hands"],
+  "Apollo": ["Riposte"], "Deadman Danny": ["Chimera Mk1", "Close The Deal"], "Rem": ["Tag Along", "Naptime"],
+  "Celeste": ["Dazzling Trick"], "Solomon": ["Rook Battery", "Develop Queen"],
 };
 
 // trait -> { label, need (how many enemies), items: name -> [weight, why] }
@@ -55,7 +73,7 @@ window.RULES = {
     },
   },
   cc: {
-    label: "Heavy CC / Lockdown", need: 2,
+    label: "Lockdown", need: 2,
     items: {
       "Debuff Reducer": [5, "Shortens stuns, slows and silences on you."],
       "Reactive Barrier": [4, "Gives a barrier when stunned, silenced or rooted."],

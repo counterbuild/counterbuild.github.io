@@ -33,12 +33,12 @@ window.WHEN_VS = {
   "Metal Skin": "When {who} focus{es} you with guns in team fights and you need a few seconds to escape or reposition.",
   "Disarming Hex": "When {who} {is} the gun carry your team can't survive.",
   // Lockdown
-  "Debuff Reducer": "Early, when stuns and slows from {who} keep you locked down too long to escape.",
-  "Reactive Barrier": "When {who} keep{s} stunning you first and bursting you while you can't move.",
-  "Unstoppable": "When lockdown from {who} keeps getting you killed in late-game fights.",
-  "Dispel Magic": "When debuffs from {who} keep sticking on you and you need a button to clear them.",
-  "Divine Barrier": "When {who} keep{s} locking down you or a teammate and you want to save them.",
-  "Indomitable": "When you keep getting caught by {who} with no time to react.",
+  "Debuff Reducer": "Early, when {cc} keep{s} you locked down too long to escape.",
+  "Reactive Barrier": "When {cc} keep{s} catching you first and you get burst while you can't act.",
+  "Unstoppable": "When {cc} keep{s} getting you killed in late-game fights.",
+  "Dispel Magic": "When {cc} keep{s} landing on you and you need a button to clear it.",
+  "Divine Barrier": "When {cc} keep{s} locking down you or a teammate and you want to save them.",
+  "Indomitable": "When you keep getting caught by {cc} with no time to react.",
   // Slippery / hard to catch
   "Slowing Bullets": "When {who} keep{s} getting away on low health.",
   "Capacitor": "When {who} keep{s} dashing out of your kill range.",
@@ -208,4 +208,10 @@ window.WHEN = {
   "Knockdown": "When enemies jump or fly into fights where a delayed stun will land.",
   "Battle Vest": "When you can stay above 65% health in trades and want more gun damage.",
   "Rebuttal": "In lane if you can parry enemy melee and want to punish it.",
+};
+
+// When an item counters more than one trait, the line for a specific trait (overrides WHEN_VS).
+window.WHEN_VS_TRAIT = {
+  "Silencer": { mobile: "When {who} keep{s} escaping with movement abilities you could shut off by staying on them." },
+  "Cursed Relic": { mobile: "When {who} keep{s} slipping out of fights with movement abilities and items." },
 };

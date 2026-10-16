@@ -20,7 +20,8 @@
     if (h.type === "marksman" || h.type === "assassin") t.add("gun");
     if (h.type === "assassin" || /Mobility|High-?[Ff]lying|Slippery|Stealth|Acrobatic|Evasive|Nimble|Soaring|Traveller|Slither/.test(tags)) t.add("mobile");
     if (window.HERO_TRAITS.heal.includes(h.name) || /Lifesteal/.test(tags)) t.add("heal");
-    if (window.HERO_TRAITS.cc.includes(h.name)) t.add("cc");
+    // Lockdown on a basic ability, not just the ultimate.
+    if ((window.HERO_CC[h.name] || []).some(a => a !== (h.abilities || [])[3])) t.add("cc");
     return t;
   }
 
@@ -185,9 +186,15 @@
   function whenToBuy(x, hero, enemyIds, traits, buildNames, used) {
     const cands = [];
     for (const t of Object.keys(R)) {
-      if (!traits.on[t] || !R[t].items[x.it.name] || !window.WHEN_VS[x.it.name]) continue;
-      const who = enemyIds.map(id => heroById[id]).filter(h => heroTraits(h).has(t)).map(h => h.name);
-      cands.push(fill(window.WHEN_VS[x.it.name], who.length ? nameList(who) : "their team", who.length === 1));
+      const vs = (window.WHEN_VS_TRAIT[x.it.name] || {})[t] || window.WHEN_VS[x.it.name];
+      if (!traits.on[t] || !R[t].items[x.it.name] || !vs) continue;
+      const heroes = enemyIds.map(id => heroById[id]).filter(h => heroTraits(h).has(t));
+      const who = heroes.map(h => h.name);
+      // {cc}: each hero's main lockdown ability, e.g. "Haze's Sleep Dagger".
+      const cc = heroes.filter(h => window.HERO_CC[h.name])
+        .map(h => `${h.name}${/s$/.test(h.name) ? "'" : "'s"} ${window.HERO_CC[h.name][0]}`);
+      const tpl = vs.replace("{cc}", cc.length ? nameList(cc) : "their lockdown");
+      cands.push(fill(tpl, who.length ? nameList(who) : "their team", who.length === 1));
       break;
     }
     const w = kitText(window.WHEN[x.it.name], hero);
