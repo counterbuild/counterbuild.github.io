@@ -152,13 +152,26 @@
     support: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
   };
 
+  // Route fit describes the hero, not the matchup, so it's measured without enemies (counter items
+  // would otherwise drag every route down). Cached until the hero or live data change.
+  let fitCache = { key: "", fit: null };
+  function currentFit() {
+    const st = stats && statsKey === keyNow() ? stats : null;
+    const key = state.hero + "|" + (st ? "live" : "saved");
+    if (fitCache.key !== key) fitCache = { key, fit: E.routeFit(state.hero, [], {}, st) };
+    return fitCache.fit;
+  }
+
   function renderRoutes() {
-    const suggested = E.defaultRoute(state.hero);
+    const fit = currentFit();
+    // Until you pick a route yourself, follow the best fit.
+    if (state.routeAuto) state.route = fit.best;
+    const suggested = fit.best;
     $("routes").innerHTML = Object.entries(ROUTES).map(([k, r]) => {
       const q = r.quota, total = q.weapon + q.spirit + q.vitality;
       const bar = ["weapon", "spirit", "vitality"].map(s => `<i class="${s}" style="flex:${q[s]}" title="${cap(s)}: ${q[s]} of ${total}"></i>`).join("");
       return `<button class="route" role="radio" aria-checked="${k === state.route}" data-route="${k}">
-        <span class="route-top"><span class="route-icon" aria-hidden="true">${ROUTE_ICON[k]}</span><b>${r.name}</b>${k === suggested ? `<em class="suggest">Suggested</em>` : ""}</span>
+        <span class="route-top"><span class="route-icon" aria-hidden="true">${ROUTE_ICON[k]}</span><b>${r.name}</b>${k === suggested ? `<em class="suggest">Suggested</em>` : fit.weak.has(k) ? `<em class="suggest not" title="Players rarely build ${esc(E.heroById[state.hero].name)} this way">Not Recommended</em>` : ""}</span>
         <span class="route-blurb">${r.blurb}</span>
         <span class="mix" aria-hidden="true">${bar}</span>
       </button>`;
@@ -480,7 +493,7 @@
     const t = ev.target.closest("button"); if (!t || t.disabled) return;
     if (t.dataset.hero) {
       const id = +t.dataset.hero;
-      if (id !== state.hero) { state.hero = id; state.route = E.defaultRoute(id); state.enemies = state.enemies.filter(e => e !== id); }
+      if (id !== state.hero) { state.hero = id; state.route = E.defaultRoute(id); state.routeAuto = true; state.enemies = state.enemies.filter(e => e !== id); }
       go("enemy");
     } else if (t.dataset.enemy) {
       const id = +t.dataset.enemy;
@@ -489,7 +502,7 @@
       state.overrides = {};
       renderEnemyStep();
     } else if (t.dataset.goto) go(t.dataset.goto);
-    else if (t.dataset.route) { state.route = t.dataset.route; render(); }
+    else if (t.dataset.route) { state.route = t.dataset.route; state.routeAuto = false; render(); }
     else if (t.dataset.phase) {
       const k = t.dataset.phase, open = !state.phaseOpen[k];
       state.phaseOpen[k] = open;

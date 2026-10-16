@@ -857,3 +857,12 @@ html { scrollbar-gutter: stable; }
   .brand img { width: 24px; height: 24px; }
   .steps button { padding: 4px 0; }
 }
+
+/* Not Recommended: a muted red tag on routes that don't fit how the hero is played */
+.suggest.not { color: var(--c-counter); border-color: var(--c-counter); }
+.route[aria-checked=true] .suggest.not { background: var(--panel); }
+.route:has(.suggest.not):not([aria-checked=true]) { opacity: .75; }
+.route:has(.suggest.not):hover { opacity: 1; }
+@media (max-width: 640px) {
+  #step-build .route .suggest.not { font-size: 0.52rem; letter-spacing: 0; padding: 0 4px; }
+}

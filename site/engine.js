@@ -187,6 +187,21 @@
     return { hero, traits, lane, chosen, alts, names };
   }
 
+  // How well each route fits the way this hero is really played: the average share of the hero's
+  // games that include each item in that route's build (capped so one staple can't carry it).
+  // The best route is Suggested; a route under 80% of the best is Not Recommended.
+  const WEAK_ROUTE = 0.8;
+  function routeFit(heroId, enemyIds, overrides, stats) {
+    const scores = {};
+    for (const r of Object.keys(ROUTES)) {
+      const b = build(heroId, r, enemyIds, overrides, stats);
+      scores[r] = b.chosen.reduce((sum, x) => sum + Math.min(x.use, 60), 0) / (b.chosen.length || 1);
+    }
+    const best = Object.keys(scores).reduce((a, r) => (scores[r] > scores[a] ? r : a));
+    const weak = new Set(Object.keys(scores).filter(r => scores[r] < WEAK_ROUTE * scores[best]));
+    return { scores, best, weak };
+  }
+
   // Fallback "How to Use" when there's no hand-written tip.
   const USE_TIP = {
     active: "Active item: put it on a key you can reach mid-fight and use it as soon as a fight starts.",
@@ -316,5 +331,5 @@
     });
   }
 
-  window.Engine = { heroById, heroTraits, defaultRoute, activeTraits, build, explain, buyOrder, diffRoutes };
+  window.Engine = { routeFit, heroById, heroTraits, defaultRoute, activeTraits, build, explain, buyOrder, diffRoutes };
 })();
