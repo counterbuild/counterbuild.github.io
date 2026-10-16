@@ -755,3 +755,5 @@ html { scrollbar-gutter: stable; }
 .lineup-wrap { position: relative; display: flex; justify-content: center; }
 .hero-slot { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 .hero-slot.filled { border: 2px solid var(--accent); }
+/* Build Details: says whether the build focuses on 1-2 heroes or balances across the team */
+.focus-note { margin: 0; font-size: 0.85rem; color: var(--muted); text-align: center; }

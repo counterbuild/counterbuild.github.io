@@ -348,11 +348,20 @@
   $("fb-form").addEventListener("submit", sendFeedback);
   $("fb").addEventListener("click", ev => { if (ev.target === $("fb") || ev.target.closest("[data-fb-close]")) $("fb").close(); });
 
+  // With 1-2 enemies the engine counters everything they bring; with more it balances across the team.
+  function renderFocus() {
+    const names = state.enemies.map(id => E.heroById[id].name);
+    $("focus-note").textContent = names.length <= 2
+      ? `Focused on countering ${names.join(" and ")}. Add more enemies for a balanced build.`
+      : "Balanced against their whole team. Pick just 1 or 2 enemies to focus on them.";
+  }
+
   function render() {
     if (state.step === "hero") renderHeroStep();
     else if (state.step === "enemy") renderEnemyStep();
     else {
       renderLineup("you-chip-2", "enemy-row");
+      renderFocus();
       renderRoutes(); renderResult(); refreshStats();
     }
     save();
