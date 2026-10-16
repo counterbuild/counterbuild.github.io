@@ -734,3 +734,20 @@ main:has(#step-build:not([hidden])) .foot { text-align: center; }
 #step-build .you-chip img, #step-build .enemy-row img { width: 56px; height: 56px; border-radius: 10px; }
 #step-build .enemy-row { gap: 8px; }
 @media (max-width: 640px) { #step-build .you-chip img, #step-build .enemy-row img { width: 44px; height: 44px; } #step-build .enemy-row { gap: 5px; } }
+
+/* Steps 1 and 2 line up exactly: the scrollbar's space is always reserved, and step 1 holds
+   invisible copies of step 2's lineup and buttons */
+html { scrollbar-gutter: stable; }
+.placeholder { visibility: hidden; pointer-events: none; }
+#step-hero .step-head.row { flex-direction: column; justify-content: center; text-align: center; gap: 12px; }
+#step-hero .actions { justify-content: center; }
+@media (max-width: 640px) {
+  #step-hero .sub { display: none; }
+  #step-hero .actions .btn:last-child { flex: 1.6; }
+}
+/* Phone header: tighter spacing so the Feedback button fits on screen */
+@media (max-width: 640px) {
+  .top-row { gap: 10px; }
+  .brand-sep { display: none; }
+  .beta { padding: 1px 4px; font-size: 0.6rem; }
+}

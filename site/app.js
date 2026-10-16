@@ -85,6 +85,9 @@
 
   function renderHeroStep() {
     const sel = state.hero || lastHero;
+    // The hidden lineup copy uses a real hero so it takes the same space as step 2's lineup.
+    const ph = E.heroById[sel] || heroes[0];
+    $("you-chip-ph").innerHTML = `<img src="${ph.img}" alt=""><span>${esc(ph.name)}</span>`;
     $("hero-grid").innerHTML = heroes.map(h =>
       `<button class="hero ${h.id === sel ? "selected" : ""}" data-hero="${h.id}"><img src="${h.img}" alt=""><span>${esc(h.name)}</span></button>`).join("");
   }
