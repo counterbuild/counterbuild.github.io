@@ -261,4 +261,4 @@ window.HERO_IMBUE = {
 };
 
 // Items that only do something for abilities with charges.
-window.CHARGE_ITEMS = ["Extra Charge", "Rapid Recharge"];
+window.CHARGE_ITEMS = ["Extra Charge", "Rapid Recharge", "Recharging Rush"];

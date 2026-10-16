@@ -5,7 +5,8 @@
   const STEPS = ["hero", "enemy", "build"];
 
   // Every visit starts at "pick your hero"; only the last hero and route are remembered.
-  const state = { step: "hero", hero: null, enemies: [], route: null, overrides: {}, swaps: {}, swapKey: "" };
+  // phaseOpen: which build phases are expanded on phones (Lane starts open).
+  const state = { step: "hero", hero: null, enemies: [], route: null, overrides: {}, swaps: {}, swapKey: "", phaseOpen: { lane: true } };
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem("build-advisor") || "{}"); } catch (e) {}
   const lastHero = E.heroById[saved.hero] ? saved.hero : null;
@@ -150,6 +151,8 @@
         <span class="mix" aria-hidden="true">${bar}</span>
       </button>`;
     }).join("");
+    // Phones show the routes as compact tiles; the picked route's description goes underneath.
+    $("route-blurb").textContent = ROUTES[state.route].blurb;
   }
 
   const LABEL = { rule: "Counter", tip: "How to Use", route: "Your Route", when: "When to Buy", timing: "Usually Bought", data: "Data", warn: "Heads Up" };
@@ -269,9 +272,15 @@
     $("result").innerHTML = `
       ${order.map(p => {
         const slots = p.steps.map(s => slot(s.buy)), items = slots.map(c => c.cur);
-        return `<section class="phase">
-          <div class="phase-head"><h3>${PHASE[p.key].title}</h3><span class="souls">${soul(sum(items))}</span></div>
-          <div class="items" data-row="${p.key}">${slots.map(c => itemCard(c.cur, b, c.alts, st, c.orig, c.swapped)).join("")}</div>
+        // On phones the header is a toggle; collapsed phases show just the item icons.
+        const open = !!state.phaseOpen[p.key];
+        return `<section class="phase ${open ? "" : "collapsed"}">
+          <button class="phase-head" type="button" data-phase="${p.key}" aria-expanded="${open}">
+            <h3>${PHASE[p.key].title}</h3><span class="souls">${soul(sum(items))}</span>
+            <span class="phase-icons" aria-hidden="true">${items.map(x => `<img src="${x.it.img}" alt="">`).join("")}</span>
+            <span class="chev" aria-hidden="true"></span>
+          </button>
+          <div class="items n${slots.length}" data-row="${p.key}">${slots.map(c => itemCard(c.cur, b, c.alts, st, c.orig, c.swapped)).join("")}</div>
         </section>`;
       }).join("")}`;
     alignRows();
@@ -430,6 +439,12 @@
       renderEnemyStep();
     } else if (t.dataset.goto) go(t.dataset.goto);
     else if (t.dataset.route) { state.route = t.dataset.route; render(); }
+    else if (t.dataset.phase) {
+      const k = t.dataset.phase, open = !state.phaseOpen[k];
+      state.phaseOpen[k] = open;
+      t.setAttribute("aria-expanded", open);
+      t.closest(".phase").classList.toggle("collapsed", !open);
+    }
     else if (t.id === "go-build") go("build");
     else if (t.id === "back-hero" || t.id === "home") go("hero");
     else if (t.id === "clear") { state.enemies = []; state.overrides = {}; renderEnemyStep(); }
