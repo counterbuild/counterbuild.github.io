@@ -38,7 +38,13 @@ def fmt(prop):
     if not prop.get("label") or not num or float(num.group()) in (0, -1): return None
     post = prop.get("postfix") or ""
     if post.strip() and v.endswith(post.strip()): post = ""
-    pre = "+" if "{s:sign}" in (prop.get("prefix") or "") and not v.startswith("-") else ""
+    # The prefix is either "{s:sign}" (show + on positives) or a literal sign such as "-" for
+    # slows and debuffs (Hunter's Aura: -15% Fire Rate), whose values come through as positive.
+    prefix = (prop.get("prefix") or "").strip()
+    if v.startswith(("-", "+")): pre = ""
+    elif "{s:sign}" in prefix: pre = "+"
+    elif prefix in ("-", "+"): pre = prefix
+    else: pre = ""
     out = {"label": prop["label"], "value": pre + v + post}
     sf = prop.get("scale_function") or {}
     if sf.get("specific_stat_scale_type") == "ETechPower" and sf.get("stat_scale"):
