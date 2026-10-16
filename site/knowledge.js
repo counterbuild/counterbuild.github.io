@@ -7,22 +7,53 @@ window.HERO_TRAITS = {
   heal: ["Lady Geist", "Dynamo", "Abrams", "Paige", "Rem", "Mo & Krill", "Lash", "Yamato", "Ivy", "Kelvin", "McGinnis", "Warden"],
 };
 
-// Abilities that actually lock you down (stun, sleep, root, tether, silence, disarm, petrify, hex,
-// lift, knock-up, pull or grab), from each ability's in-game description. Basic abilities first,
-// ultimate last. Heroes whose kit only slows (Kelvin, Paradox, McGinnis...) aren't listed.
-// A hero counts as lockdown for the counter rules when one of their basic abilities is here.
+// Abilities that actually lock you down, with what they do, from each ability's in-game description.
+// Basic abilities first, ultimate last. Heroes whose kit only slows (Kelvin, Paradox, McGinnis...)
+// aren't listed. A hero counts as lockdown for the counter rules when a basic ability is here.
 window.HERO_CC = {
-  "Infernus": ["Concussive Combustion"], "Seven": ["Static Charge"], "Vindicta": ["Stake"],
-  "Abrams": ["Shoulder Charge", "Seismic Impact"], "Wraith": ["Telekinesis"], "Dynamo": ["Kinetic Pulse", "Singularity"],
-  "Haze": ["Sleep Dagger"], "Holliday": ["Powder Keg", "Spirit Lasso"], "Bebop": ["Grapple Arm"],
-  "Grey Talon": ["Spirit Snare", "Guided Owl"], "Mo & Krill": ["Burrow", "Sand Blast", "Combo"],
-  "Ivy": ["Stone Form", "Air Drop"], "Warden": ["Binding Word"], "Lash": ["Death Slam"],
-  "Viscous": ["Puddle Punch", "Goo Ball"], "Mirage": ["Dust Devil"], "Vyper": ["Petrifying Bola"],
-  "Sinclair": ["Rabbit Hex"], "Mina": ["Nox Nostra"], "Venator": ["Gutshot", "Hex-Lined Snap Trap"],
-  "Victor": ["Shocking Reanimation"], "Paige": ["Captivating Read", "Rallying Charge"],
-  "The Doorman": ["Luggage Cart", "Hotel Guest"], "Billy": ["Bashdown", "Chain Gang"], "Graves": ["Grasping Hands"],
-  "Apollo": ["Riposte"], "Deadman Danny": ["Chimera Mk1", "Close The Deal"], "Rem": ["Tag Along", "Naptime"],
-  "Celeste": ["Dazzling Trick"], "Solomon": ["Rook Battery", "Develop Queen"],
+  "Infernus": [["Concussive Combustion", "stun"]],
+  "Seven": [["Static Charge", "stun"]],
+  "Vindicta": [["Stake", "tether"]],
+  "Abrams": [["Shoulder Charge", "stun"], ["Seismic Impact", "stun"]],
+  "Wraith": [["Telekinesis", "lift"]],
+  "Dynamo": [["Kinetic Pulse", "knockup"], ["Singularity", "stun"]],
+  "Haze": [["Sleep Dagger", "sleep"]],
+  "Holliday": [["Powder Keg", "knockup"], ["Spirit Lasso", "stun"]],
+  "Bebop": [["Grapple Arm", "pull"]],
+  "Grey Talon": [["Spirit Snare", "tether"], ["Guided Owl", "stun"]],
+  "Mo & Krill": [["Burrow", "knockup"], ["Sand Blast", "disarm"], ["Combo", "stun"]],
+  "Ivy": [["Stone Form", "stun"], ["Air Drop", "silence"]],
+  "Warden": [["Binding Word", "root"]],
+  "Lash": [["Death Slam", "stun"]],
+  "Viscous": [["Puddle Punch", "knockup"], ["Goo Ball", "stun"]],
+  "Mirage": [["Dust Devil", "lift"]],
+  "Vyper": [["Petrifying Bola", "petrify"]],
+  "Sinclair": [["Rabbit Hex", "hex"]],
+  "Mina": [["Nox Nostra", "silence"]],
+  "Venator": [["Gutshot", "stun"], ["Hex-Lined Snap Trap", "root"]],
+  "Victor": [["Shocking Reanimation", "stun"]],
+  "Paige": [["Captivating Read", "root"], ["Rallying Charge", "stun"]],
+  "The Doorman": [["Luggage Cart", "pull"], ["Hotel Guest", "banish"]],
+  "Billy": [["Bashdown", "knockup"], ["Chain Gang", "pull"]],
+  "Graves": [["Grasping Hands", "root"]],
+  "Apollo": [["Riposte", "stun"]],
+  "Deadman Danny": [["Chimera Mk1", "knockup"], ["Close The Deal", "grab"]],
+  "Rem": [["Tag Along", "stun"], ["Naptime", "sleep"]],
+  "Celeste": [["Dazzling Trick", "silence"]],
+  "Solomon": [["Rook Battery", "root"], ["Develop Queen", "stun"]],
+};
+
+// Lockdown counters that only work on some kinds of lockdown (from the items' own text).
+// Dispel Magic and Divine Barrier can't clear stuns or sleeps, and Dispel can't be pressed while
+// stunned or asleep and doesn't remove ultimate effects (like Pocket's Affliction), so they only
+// count against basic-ability roots, tethers, silences, disarms and hexes.
+// Items not listed (Debuff Reducer) work on every kind.
+window.CC_ITEM_KINDS = {
+  "Dispel Magic": { kinds: ["root", "tether", "silence", "disarm", "hex"], noUlt: true },
+  "Divine Barrier": { kinds: ["root", "tether", "silence", "disarm", "hex"], noUlt: true },
+  "Indomitable": { kinds: ["stun", "sleep", "root", "tether", "silence", "lift", "petrify"] },
+  "Reactive Barrier": { kinds: ["stun", "sleep", "root", "tether", "silence", "lift", "petrify"] },
+  "Unstoppable": { kinds: ["stun", "sleep", "root", "tether", "silence", "disarm", "lift", "petrify", "hex"] },
 };
 
 // trait -> { label, need (how many enemies), items: name -> [weight, why] }
@@ -78,9 +109,9 @@ window.RULES = {
       "Debuff Reducer": [5, "Shortens stuns, slows and silences on you."],
       "Reactive Barrier": [4, "Gives a barrier when stunned, silenced or rooted."],
       "Unstoppable": [4, "Active: shrug off stuns, silences, roots and disarms."],
-      "Dispel Magic": [4, "Active: clears debuffs when you get locked down."],
-      "Divine Barrier": [3, "Active: clears non-stun debuffs and gives a barrier."],
-      "Indomitable": [3, "Automatically cleanses a debuff when you get hit by one."],
+      "Dispel Magic": [4, "Active: clears roots, silences and slows. Not stuns or sleeps."],
+      "Divine Barrier": [3, "Active: clears roots, silences and slows and gives a barrier."],
+      "Indomitable": [3, "Automatically cleanses the next stun, sleep, root or silence."],
     },
   },
   mobile: {
@@ -201,7 +232,7 @@ window.LINES = {
   "Extra Stamina": "More stamina for dashes and slides.",
   "Extra Regen": "Faster health regen between fights.",
   "Improved Spirit": "Plain spirit power boost.",
-  "Indomitable": "Automatically cleanses a debuff when you get hit by one.",
+  "Indomitable": "Automatically cleanses the next stun, sleep, root or silence that hits you.",
   "Restorative Locket": "Active heal you can use on yourself or an ally.",
   "Counterspell": "Your next parry blocks the damage and effects of an enemy ability or item.",
   "Spirit Resilience": "Extra spirit resist when you're below half health.",

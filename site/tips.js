@@ -73,10 +73,10 @@ window.TIPS = {
   "Melee Lifesteal": "Throw in a melee hit on creeps or heroes to heal in lane.",
   // Actives
   "Unstoppable": "Save it for the stun or lockdown that would kill you, and press it before you get hit. You can't use it while already stunned.",
-  "Dispel Magic": "Use it after you get hit by a debuff, slow or silence to clear it.",
+  "Dispel Magic": "Press it to clear roots, silences, hexes and slows. It can't be used while you're stunned or asleep, and it doesn't remove ultimates.",
   "Capacitor": "Throw it at the enemy trying to escape, or at one diving you. It also stops their dashes.",
   "Silence Wave": "Fire it as the enemy team starts their combo to shut it down.",
-  "Divine Barrier": "Use it on an ally who's being focused; it clears debuffs too.",
+  "Divine Barrier": "Use it on an ally who's being focused. It clears roots, silences and slows, but not stuns.",
   "Guardian Ward": "Throw it on a teammate who's taking damage, or on yourself to escape.",
   "Warp Stone": "Use it to escape through a gap or to close distance on a fleeing target.",
   "Fleetfoot": "Pop it to chase or to escape. Don't waste it walking to lane.",

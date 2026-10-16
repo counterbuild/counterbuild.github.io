@@ -199,7 +199,7 @@ window.WHEN = {
   "Debuff Reducer": "Early, when stuns and slows keep you locked down for too long.",
   "Reactive Barrier": "When you keep getting stunned first and burst while you can't move.",
   "Unstoppable": "Late, when lockdown is what keeps getting you killed.",
-  "Dispel Magic": "When debuffs keep sticking to you and you want a button to clear them.",
+  "Dispel Magic": "When roots, silences and slows keep sticking to you and you want a button to clear them.",
   "Divine Barrier": "When you or a teammate keep getting locked down and focused.",
   "Indomitable": "Late, when you keep getting caught with no time to react.",
   "Slowing Bullets": "When enemies keep walking away from your gunfire on low health.",

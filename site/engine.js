@@ -21,8 +21,20 @@
     if (h.type === "assassin" || /Mobility|High-?[Ff]lying|Slippery|Stealth|Acrobatic|Evasive|Nimble|Soaring|Traveller|Slither/.test(tags)) t.add("mobile");
     if (window.HERO_TRAITS.heal.includes(h.name) || /Lifesteal/.test(tags)) t.add("heal");
     // Lockdown on a basic ability, not just the ultimate.
-    if ((window.HERO_CC[h.name] || []).some(a => a !== (h.abilities || [])[3])) t.add("cc");
+    if ((window.HERO_CC[h.name] || []).some(([a]) => a !== (h.abilities || [])[3])) t.add("cc");
     return t;
+  }
+
+  // The lockdown abilities of hero h that this item answers (all of them for most items).
+  function ccFor(itemName, h) {
+    const lim = window.CC_ITEM_KINDS[itemName];
+    return (window.HERO_CC[h.name] || []).filter(([a, kind]) =>
+      !lim || (lim.kinds.includes(kind) && !(lim.noUlt && a === (h.abilities || [])[3])));
+  }
+  // Enemy heroes that bring trait t, narrowed for lockdown items to the lockdown the item answers.
+  function bringers(t, itemName, enemyIds) {
+    const hs = enemyIds.map(id => heroById[id]).filter(h => heroTraits(h).has(t));
+    return t === "cc" ? hs.filter(h => ccFor(itemName, h).length) : hs;
   }
 
   function defaultRoute(heroId) {
@@ -73,7 +85,8 @@
     for (const tg of tagOf[item.name] || []) s += r.tags[tg] || 0;
     let rb = 0; // bonus for countering the enemy team
     for (const [t, rule] of Object.entries(R)) {
-      const hit = traits.on[t] && rule.items[item.name];
+      // Lockdown items only count when an enemy has lockdown they can answer.
+      const hit = traits.on[t] && rule.items[item.name] && (t !== "cc" || !enemyIds.length || bringers(t, item.name, enemyIds).length);
       // Normally only the two strongest counters per trait get full credit, so one trait can't fill the build.
       const full = Object.keys(rule.items).indexOf(item.name) < 2;
       if (hit) rb += hit[0] * (full ? 1 : 0.5);
@@ -188,11 +201,11 @@
     for (const t of Object.keys(R)) {
       const vs = (window.WHEN_VS_TRAIT[x.it.name] || {})[t] || window.WHEN_VS[x.it.name];
       if (!traits.on[t] || !R[t].items[x.it.name] || !vs) continue;
-      const heroes = enemyIds.map(id => heroById[id]).filter(h => heroTraits(h).has(t));
+      const heroes = bringers(t, x.it.name, enemyIds);
+      if (t === "cc" && !heroes.length) continue;
       const who = heroes.map(h => h.name);
-      // {cc}: each hero's main lockdown ability, e.g. "Haze's Sleep Dagger".
-      const cc = heroes.filter(h => window.HERO_CC[h.name])
-        .map(h => `${h.name}${/s$/.test(h.name) ? "'" : "'s"} ${window.HERO_CC[h.name][0]}`);
+      // {cc}: each hero's main lockdown ability this item answers, e.g. "Haze's Sleep Dagger".
+      const cc = t !== "cc" ? [] : heroes.map(h => `${h.name}${/s$/.test(h.name) ? "'" : "'s"} ${ccFor(x.it.name, h)[0][0]}`);
       const tpl = vs.replace("{cc}", cc.length ? nameList(cc) : "their lockdown");
       cands.push(fill(tpl, who.length ? nameList(who) : "their team", who.length === 1));
       break;
@@ -213,8 +226,9 @@
     const gameDesc = (x.it.desc || "").split(/(?<=\.)\s/)[0];
     out.push({ kind: "what", text: window.LINES[x.it.name] || gameDesc || "A plain stat item. Check the in-game tooltip for exact numbers." });
     // One short Counter line: which traits it answers and which enemy heroes bring them.
-    const counters = Object.entries(R).filter(([t, rule]) => traits.on[t] && rule.items[x.it.name]).map(([t, rule]) => {
-      const who = enemyIds.map(id => heroById[id]).filter(h => heroTraits(h).has(t)).map(h => h.name);
+    const counters = Object.entries(R).filter(([t, rule]) => traits.on[t] && rule.items[x.it.name] &&
+      (t !== "cc" || bringers(t, x.it.name, enemyIds).length)).map(([t, rule]) => {
+      const who = bringers(t, x.it.name, enemyIds).map(h => h.name);
       return who.length ? `${rule.label} (${who.join(", ")})` : rule.label;
     });
     // Some items counter more than one trait; describe those in one plain line instead.
