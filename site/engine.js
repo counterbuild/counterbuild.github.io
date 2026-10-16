@@ -4,7 +4,9 @@
 (function () {
   const D = window.DATA, R = window.RULES, ROUTES = window.ROUTES;
   const SHRINK = 1500; // matches needed before a matchup delta counts at half weight
-  const MIN_BASE = 200; // an item the hero has barely bought is left out when we have data
+  // An item must show up in enough of this hero's games to be suggested, measured against the
+  // hero's most-bought item. Counter items get a lower floor so the counter levels have options.
+  const MIN_SHARE = 0.02, MIN_SHARE_COUNTER = 0.0025;
   const heroById = Object.fromEntries(D.heroes.map(h => [h.id, h]));
   const tagOf = {};
   for (const [tag, names] of Object.entries(window.TAGS)) for (const n of names) (tagOf[n] = tagOf[n] || []).push(tag);
@@ -92,12 +94,22 @@
   // Light and Heavy must always differ from Normal: if a setting gives the same 12 items,
   // step it further (fewer counters for Light, stronger counters for Heavy) until it changes.
   function build(heroId, route, enemyIds, overrides, stats, level = "normal") {
-    const normal = buildWith(heroId, route, enemyIds, overrides, stats, LEVELS.normal);
+    // Normal counters at least one thing when the enemy team has a trait, so Light has something to drop.
+    let normal;
+    for (const flat of [0, 2, 4, 7]) {
+      normal = buildWith(heroId, route, enemyIds, overrides, stats, { ...LEVELS.normal, flat });
+      if (!Object.values(normal.traits.on).some(Boolean) || normal.chosen.some(x => x.rb > 0)) break;
+    }
     if (level !== "light" && level !== "heavy") return normal;
     const key = b => b.chosen.map(x => x.it.id).sort().join();
     const steps = level === "light"
-      ? [2, 1, 0].map(keep => ({ ...LEVELS.light, keep }))
-      : [4, 8, 14, 25].map(flat => ({ ...LEVELS.heavy, flat, mult: 1.6 + flat / 10 }));
+      // Past keep 0, counter items also get pushed down, for when they're the hero's usual buys anyway.
+      // Last resort: ignore the matchup data too, which leaves the hero's standard build.
+      ? [[2, 0], [1, 0], [0, 0], [0, 2], [0, 4], [0, 8], [0, 8, true]].map(([keep, drop, noData]) => ({ ...LEVELS.light, keep, drop, noData }))
+      // Heavy then reaches for counters this hero rarely buys, then any counter for any route,
+      // and last leans harder on the items that win most vs these heroes.
+      : [[4, 1], [8, 1], [14, 1], [25, 1], [25, 0.6], [25, 0.4], [25, 0.4, true], [25, 0.4, true, 3], [25, 0.4, true, 8]]
+        .map(([flat, floor, anySlot, dataBoost]) => ({ ...LEVELS.heavy, flat, mult: 1.6 + flat / 10, floor, anySlot, dataBoost }));
     let b;
     for (const lv of steps) {
       b = buildWith(heroId, route, enemyIds, overrides, stats, lv);
@@ -106,14 +118,38 @@
     return b;
   }
 
+  // Retry with lower floors when the hero buys too few items for this route to fill the build.
   function buildWith(heroId, route, enemyIds, overrides, stats, lv) {
+    let b;
+    for (const relax of [1, 0.4, 0.1, 0]) {
+      b = buildOnce(heroId, route, enemyIds, overrides, stats, lv, relax);
+      if (b.chosen.length >= 12 && b.lane.length >= 3) break;
+    }
+    return b;
+  }
+
+  // Does this hero actually buy the item (or is it a counter that suits the route)?
+  function fits(x, hero, route, stats, max, relax, lv) {
+    if (hero.pop[x.it.id]) return true;
+    // A spirit-slot counter only gets the low floor on routes that build spirit.
+    const counter = x.rb > 0 && (lv.anySlot || x.it.slot !== "spirit" || ROUTES[route].bias.spirit > 0);
+    if (!stats) return counter || relax === 0;
+    const share = max ? ((stats.base[x.it.id] || [0, 0])[1]) / max : 0;
+    const floor = counter ? MIN_SHARE_COUNTER * (lv.floor ?? 1) : MIN_SHARE;
+    return share >= floor * relax && (relax === 0 || share > 0);
+  }
+
+  function buildOnce(heroId, route, enemyIds, overrides, stats, lv, relax) {
     const hero = heroById[heroId];
     const traits = activeTraits(enemyIds, overrides, lv.wide);
-    const pool = D.items.filter(it => !stats || (stats.base[it.id] && stats.base[it.id][1] >= MIN_BASE) || hero.pop[it.id]);
-    const scored = pool.map(it => ({ it, ...scoreItem(it, hero, route, enemyIds, traits, stats, lv.wide) }));
+    const max = stats ? Math.max(0, ...Object.values(stats.base).map(v => v[1])) : 0;
+    const scored = D.items.map(it => ({ it, ...scoreItem(it, hero, route, enemyIds, traits, stats, lv.wide) }))
+      .filter(x => fits(x, hero, route, stats, max, relax, lv));
     // Apply the counter bonus; on Light only the strongest few counters keep theirs.
     const keep = new Set(scored.filter(x => x.rb > 0).sort((a, b) => b.rb - a.rb).slice(0, lv.keep));
-    for (const x of scored) x.s += keep.has(x) ? x.rb * lv.mult + lv.flat : 0;
+    if (lv.noData) for (const x of scored) x.s -= 1.5 * x.md.score;
+    if (lv.dataBoost) for (const x of scored) x.s += lv.dataBoost * x.md.score;
+    for (const x of scored) x.s += keep.has(x) ? x.rb * lv.mult + lv.flat : x.rb > 0 ? -(lv.drop || 0) : 0;
     const quota = { ...ROUTES[route].quota };
     const chosen = [];
     for (const tier of [4, 3, 2]) {
