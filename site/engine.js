@@ -106,6 +106,7 @@
 
   // Does this hero actually buy the item (or is it a counter that suits the route)?
   function fits(x, hero, route, stats, max, relax) {
+    if (window.CHARGE_ITEMS.includes(x.it.name) && !(hero.charged || []).length) return false;
     if (hero.pop[x.it.id]) return true;
     // A spirit-slot counter only gets the low floor on routes that build spirit.
     const counter = x.rb > 0 && (x.it.slot !== "spirit" || ROUTES[route].bias.spirit > 0);
@@ -170,8 +171,18 @@
     .replace(/(\w*)\{ies\}/g, (m, stem) => stem + (one ? "ies" : "y"))
     .replace(/\{es\}/g, one ? "es" : "").replace(/\{s\}/g, one ? "s" : "");
 
+  // Fill in the hero's own ability names; null when the hero lacks one the text needs.
+  function kitText(text, hero) {
+    if (!text) return null;
+    const ab = hero.abilities || [];
+    const names = { imbue: ab[(window.HERO_IMBUE[hero.name] || 1) - 1], ult: ab[3], charged: (hero.charged || [])[0] };
+    let ok = true;
+    const out = text.replace(/\{(imbue|ult|charged)\}/g, (m, k) => names[k] || (ok = false, m));
+    return ok ? out : null;
+  }
+
   // Candidate lines from most to least specific; the first one not already used in this build wins.
-  function whenToBuy(x, enemyIds, traits, buildNames, used) {
+  function whenToBuy(x, hero, enemyIds, traits, buildNames, used) {
     const cands = [];
     for (const t of Object.keys(R)) {
       if (!traits.on[t] || !R[t].items[x.it.name] || !window.WHEN_VS[x.it.name]) continue;
@@ -179,7 +190,8 @@
       cands.push(fill(window.WHEN_VS[x.it.name], who.length ? nameList(who) : "their team", who.length === 1));
       break;
     }
-    if (window.WHEN[x.it.name]) cands.push(window.WHEN[x.it.name]);
+    const w = kitText(window.WHEN[x.it.name], hero);
+    if (w) cands.push(w);
     const from = ((x.it.details && x.it.details.from) || []).filter(n => buildNames.has(n));
     if (from.length) cands.push(`Right after ${nameList(from)}: it upgrades from it, so the souls you spent carry over.`);
     cands.push(WHEN_TIER[x.it.tier]);
@@ -201,8 +213,9 @@
     // Some items counter more than one trait; describe those in one plain line instead.
     const COUNTER_TEXT = { "Counterspell": "All enemy abilities" };
     if (counters.length) out.push({ kind: "rule", text: COUNTER_TEXT[x.it.name] || counters.join(" · ") });
-    out.push({ kind: "tip", text: window.TIPS[x.it.name] || USE_TIP[x.it.active ? "active" : "passive"] });
-    out.push({ kind: "when", text: whenToBuy(x, enemyIds, traits, buildNames, used) });
+    const tip = kitText(window.TIPS_KIT[x.it.name], hero) || kitText(window.TIPS[x.it.name], hero);
+    out.push({ kind: "tip", text: tip || USE_TIP[x.it.active ? "active" : "passive"] });
+    out.push({ kind: "when", text: whenToBuy(x, hero, enemyIds, traits, buildNames, used) });
     const secs = stats && stats.buy[x.it.id];
     if (secs) out.push({ kind: "timing", text: `Around minute ${Math.max(1, Math.round(secs / 60))}` });
     // Short evidence line: how this item does vs these heroes compared with its usual win rate.

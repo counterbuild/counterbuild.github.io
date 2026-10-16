@@ -7,6 +7,11 @@ def clean(x):
     t = t.get("desc") if isinstance(t, dict) else t
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", t or "")).strip()
 
+ability_name = {x["class_name"]: x.get("name") for x in items if x.get("type") == "ability"}
+def charges(cls):
+    a = next((x for x in items if x.get("class_name") == cls), {})
+    try: return float(((a.get("properties") or {}).get("AbilityCharges") or {}).get("value") or 0)
+    except ValueError: return 0
 H = []
 for h in heroes:
     if not (h.get("player_selectable") and not h.get("disabled") and not h.get("in_development")): continue
@@ -15,7 +20,11 @@ for h in heroes:
         if isinstance(ph, list):
             for e in ph: pop[str(e["item_id"])] = max(pop.get(str(e["item_id"]), 0), round(e["pick_pct"], 1))
     H.append({"id": h["id"], "name": h["name"], "type": h.get("hero_type"), "tags": h.get("tags"),
-              "img": h["images"].get("icon_image_small_webp") or h["images"].get("icon_image_small"), "pop": pop})
+              "img": h["images"].get("icon_image_small_webp") or h["images"].get("icon_image_small"), "pop": pop,
+              # Ability names in key order 1-4 (4 is the ultimate), used by the imbue tips.
+              "abilities": [ability_name.get((h.get("items") or {}).get(f"signature{k}"), "") for k in range(1, 5)],
+              # Abilities 1-3 that use charges (for Extra Charge and Rapid Recharge).
+              "charged": [ability_name.get(h["items"][f"signature{k}"], "") for k in range(1, 4) if charges((h.get("items") or {}).get(f"signature{k}")) > 1]})
 by_class = {x["class_name"]: x for x in items if x.get("type") == "upgrade"}
 upgrades_to = {}
 for x in items:

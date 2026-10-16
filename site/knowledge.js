@@ -196,3 +196,17 @@ window.LINES = {
   "Hunter's Aura": "Nearby enemies lose bullet resist and fire rate.",
   "Berserker": "Weapon damage rises the more damage you take.",
 };
+
+// The ability (key 1-3) each hero usually imbues with damage and cast items like Surge of Power,
+// Quicksilver Reload and Mercurial Magnum: the damage ability they cast most in fights.
+window.HERO_IMBUE = {
+  "Infernus": 1, "Seven": 1, "Vindicta": 3, "Lady Geist": 1, "Abrams": 1, "Wraith": 1, "McGinnis": 1,
+  "Paradox": 1, "Dynamo": 1, "Kelvin": 1, "Haze": 1, "Holliday": 1, "Bebop": 2, "Calico": 1,
+  "Grey Talon": 1, "Mo & Krill": 1, "Shiv": 1, "Ivy": 1, "Warden": 1, "Yamato": 1, "Lash": 1,
+  "Viscous": 1, "Pocket": 1, "Mirage": 2, "Vyper": 1, "Sinclair": 1, "Mina": 1, "Drifter": 1,
+  "Venator": 3, "Victor": 1, "Paige": 1, "The Doorman": 1, "Billy": 1, "Graves": 2, "Apollo": 1,
+  "Deadman Danny": 2, "Rem": 1, "Silver": 3, "Celeste": 1, "Rat King": 2, "Solomon": 1,
+};
+
+// Items that only do something for abilities with charges.
+window.CHARGE_ITEMS = ["Extra Charge", "Rapid Recharge"];

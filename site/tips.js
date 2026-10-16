@@ -1,10 +1,10 @@
 // Practical "how to use it" tips, shown when you open an item.
 window.TIPS = {
   // Imbue items
-  "Quicksilver Reload": "Imbue it on the ability you cast most in fights. Cast it when your clip is low to get a free reload.",
-  "Mercurial Magnum": "Imbue the ability you open fights with. Cast it, then shoot right away while the bonus spirit damage is on your bullets.",
-  "Surge of Power": "Imbue your main damage ability. The speed burst on cast also helps you chase or get out.",
-  "Compress Cooldown": "Imbue the ability that decides your fights (stun, ult or escape), not the one you spam.",
+  "Quicksilver Reload": "Imbue {imbue}. Cast it when your clip is low to get a free reload.",
+  "Mercurial Magnum": "Imbue {imbue}. Open with it, then shoot right away while the bonus spirit damage is on your bullets.",
+  "Surge of Power": "Imbue {imbue}. It gets the spirit power, and every cast gives you a speed burst to chase or get out.",
+  "Compress Cooldown": "Imbue {ult} so it's ready for more fights, or the stun or escape you're always waiting on. Not the ability you spam.",
   "Duration Extender": "Imbue an ability whose value is its duration, like a buff, zone or disable.",
   "Mystic Expansion": "Imbue an area ability so it hits more people in team fights.",
   // Headshot items
@@ -95,4 +95,13 @@ window.TIPS = {
   "Cursed Relic": "Save it for the enemy carry so they can't use items or abilities.",
   "Ethereal Shift": "Use it to dodge a big ultimate or burst, then fight back.",
   "Cultist Sacrifice": "Use it on big neutral camps for extra souls. Best when you're farming, not fighting.",
+};
+
+// Tips that name the hero's own abilities: {imbue} is the ability to imbue, {ult} the ultimate,
+// {charged} an ability with charges. Used instead of TIPS when the hero has what they need.
+window.TIPS_KIT = {
+  "Mystic Reverb": "Imbue {imbue}. Each hit slows the target, heals you and splashes extra damage around them.",
+  "Ballistic Enchantment": "Imbue {imbue}. Hit several heroes with it, then shoot while the weapon damage bonus is up.",
+  "Rapid Recharge": "{charged} gets extra charges and recharges faster, so you can cast it more often in a fight.",
+  "Extra Charge": "Adds a charge to {charged}, so you get one more cast before it goes on cooldown.",
 };
