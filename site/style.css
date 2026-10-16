@@ -818,3 +818,10 @@ html { scrollbar-gutter: stable; }
   #step-build .route .suggest { font-size: 0.6rem; right: 50%; transform: translateX(50%); white-space: nowrap; }
   .route-blurb-mobile { display: block; margin: 10px 0 0; font-size: 0.85rem; color: var(--muted); text-align: center; }
 }
+
+/* Routes: a soft accent glow on hover or keyboard focus, like the item cards */
+.route { transition: border-color .2s, box-shadow .2s; }
+@media (hover: hover) {
+  .route:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 14px -3px var(--accent); }
+}
+.route:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 14px -3px var(--accent); }
