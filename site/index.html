@@ -28,16 +28,20 @@
 <main class="wrap">
   <!-- Step 1 -->
   <section id="step-hero" class="step" hidden>
-    <!-- Invisible copies of step 2's lineup and buttons keep the hero grid in the same spot on both steps -->
+    <!-- Invisible copies of step 2's lineup and buttons keep the hero grid in the same spot on both steps;
+         your hero's slot sits centered on top of the lineup copy -->
     <div class="step-head row">
       <div>
         <h1>Who Are You Playing?</h1>
         <p class="sub">Pick your hero to start.</p>
       </div>
-      <div class="lineup placeholder" aria-hidden="true">
-        <div id="you-chip-ph" class="you-chip"></div>
-        <span class="vs">VS</span>
-        <div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span></div>
+      <div class="lineup-wrap">
+        <span id="hero-slot" class="slot hero-slot" aria-hidden="true">+</span>
+        <div class="lineup placeholder" aria-hidden="true">
+          <div id="you-chip-ph" class="you-chip"></div>
+          <span class="vs">VS</span>
+          <div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span></div>
+        </div>
       </div>
     </div>
     <div id="hero-grid" class="grid"></div>

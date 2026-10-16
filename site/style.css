@@ -751,3 +751,7 @@ html { scrollbar-gutter: stable; }
   .brand-sep { display: none; }
   .beta { padding: 1px 4px; font-size: 0.6rem; }
 }
+/* Step 1: your hero's slot, centered where step 2's lineup sits */
+.lineup-wrap { position: relative; display: flex; justify-content: center; }
+.hero-slot { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.hero-slot.filled { border: 2px solid var(--accent); }
