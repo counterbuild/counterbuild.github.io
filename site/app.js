@@ -46,17 +46,26 @@
   }
 
   let stats = null, statsKey = "", statsErr = false, token = 0;
+  // A matchup that's loading, or that failed less than a minute ago, isn't requested again, so a
+  // failed request can't turn into a retry loop when the page re-renders.
+  let pendingKey = "", failedKey = "", failedAt = 0;
+  const RETRY_MS = 60000;
   const keyNow = () => state.hero + "|" + state.enemies.join(",");
   function refreshStats() {
-    if (keyNow() === statsKey) return;
-    const my = ++token, key = keyNow();
+    const key = keyNow();
+    if (key === statsKey || key === pendingKey) return;
+    if (key === failedKey && Date.now() - failedAt < RETRY_MS) { statsErr = true; return; }
+    const my = ++token;
+    pendingKey = key;
     statsErr = false;
     $("status").textContent = "Loading live match data…";
     loadStats(state.hero, state.enemies).then(s => {
       if (my !== token) return;
+      pendingKey = "";
       stats = s; statsKey = key; $("status").textContent = ""; render();
     }).catch(() => {
       if (my !== token) return;
+      pendingKey = ""; failedKey = key; failedAt = Date.now();
       stats = null; statsKey = ""; statsErr = true;
       $("status").textContent = "Live data is unavailable right now, so this build uses the written rules and saved hero data only.";
       render();

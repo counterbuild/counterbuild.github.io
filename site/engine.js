@@ -108,10 +108,13 @@
     // Matchup data on items the hero rarely buys is noisy, so it counts for less.
     md.score *= Math.min(1, use / 10);
     s += 1.5 * md.score;
-    return { s, rb, md };
+    return { s, rb, md, use };
   }
 
   const TIER_MIX = { 4: 4, 3: 5, 2: 3 };
+  const SWAP_GAP = 2.5; // how far below the pick a swap may score
+  const SWAP_USE = 8;   // % of the hero's games a non-counter swap must show up in
+  const SWAP_USE_COUNTER = 3; // ...and a counter swap
 
   // Normal counters at least one thing when the enemy team has a trait.
   function build(heroId, route, enemyIds, overrides, stats) {
@@ -170,10 +173,12 @@
     }
     const lane = scored.filter(x => x.it.tier === 1).sort((a, b) => b.s - a.s).slice(0, 3);
     const taken = new Set([...chosen, ...lane]);
-    // Each alternative is offered once across the whole build, so the same swap doesn't repeat.
+    // Optional swaps are real alternatives only: same slot and tier, scored close to the pick, and
+    // either bought regularly by this hero or a counter to this team that they still buy sometimes. Each is offered once per build.
     const alts = {};
     for (const x of [...chosen].sort((a, b) => b.s - a.s)) {
-      alts[x.it.id] = scored.filter(a => !taken.has(a) && a.it.slot === x.it.slot && a.it.tier === x.it.tier)
+      alts[x.it.id] = scored.filter(a => !taken.has(a) && a.it.slot === x.it.slot && a.it.tier === x.it.tier &&
+          a.s >= x.s - SWAP_GAP && (a.use >= SWAP_USE || (a.rb > 0 && a.use >= SWAP_USE_COUNTER)))
         .sort((a, b) => b.s - a.s).slice(0, 2);
       alts[x.it.id].forEach(a => taken.add(a));
     }
