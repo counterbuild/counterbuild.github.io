@@ -50,8 +50,8 @@ window.TIPS = {
   // Defense
   "Spirit Shielding": "It works on its own: taking 225 spirit damage within 3.5 seconds gives you a 300-point barrier. Expect it to absorb the first ability combo, then play safer during its 45-second cooldown.",
   "Weapon Shielding": "It works on its own: taking 250 gun damage within 4 seconds gives you a 300-point barrier. Trade knowing the barrier will absorb the first burst, then play safer during its 35-second cooldown.",
-  "Spirit Resilience": "Its extra 15% spirit resist turns on below 50% health. Pair it with healing or lifesteal so you can recover while the bonus is active.",
-  "Bullet Resilience": "Its extra 15% bullet resist turns on below 50% health, so you can stay in a fight a little longer at low health. Use that window to finish the trade or back out safely.",
+  "Spirit Resilience": "The 30% spirit resist is always on, and another 15% turns on below 50% health. Pair it with healing or lifesteal so you can recover while the extra resist is active.",
+  "Bullet Resilience": "The 30% bullet resist is always on, and another 15% turns on below 50% health, so you can stay in a fight longer at low health. Use that window to finish the trade or back out safely.",
   "Counterspell": "Parry when you see their key ability coming at you. Practice the timing, since a missed parry does nothing.",
   "Debuff Reducer": "This item is passive. Buy it early if you keep dying while stunned or slowed.",
   "Reactive Barrier": "This item is passive: you gain a barrier the moment you're stunned or silenced.",

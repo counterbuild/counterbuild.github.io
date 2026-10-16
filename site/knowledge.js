@@ -82,7 +82,7 @@ window.RULES = {
     label: "Spirit Damage", need: 2,
     items: {
       "Spirit Shielding": [5, "Gives a barrier when you take a burst of spirit damage."],
-      "Spirit Resilience": [4, "Extra spirit resist when low on health, which is when you need it."],
+      "Spirit Resilience": [4, "Spirit resist at all times, plus more when you're below half health."],
       "Counterspell": [4, "A parry that blocks the next ability or item effect."],
       "Colossus": [3, "Gives bullet and spirit resist plus a slow aura around you."],
       "Silencer": [4, "Bullets build up a silence that cuts off their ability combos."],
@@ -96,7 +96,7 @@ window.RULES = {
     label: "Gun Damage", need: 3,
     items: {
       "Weapon Shielding": [5, "Gives a barrier when you take a burst of weapon damage."],
-      "Bullet Resilience": [4, "Extra bullet resist when low on health."],
+      "Bullet Resilience": [4, "Bullet resist at all times, plus more when you're below half health."],
       "Plated Armor": [3, "Chance to deflect bullets or negate on-hit effects."],
       "Return Fire": [2, "Fires back at anyone who damages you."],
       "Metal Skin": [3, "Active: become immune to bullets for a moment when gun heroes focus you."],
@@ -235,8 +235,8 @@ window.LINES = {
   "Indomitable": "Automatically cleanses the next stun, sleep, root or silence that hits you.",
   "Restorative Locket": "An active heal you can use on yourself or an ally.",
   "Counterspell": "Your next parry blocks the damage and effects of an enemy ability or item.",
-  "Spirit Resilience": "Extra spirit resist when you're below half health.",
-  "Bullet Resilience": "Extra bullet resist when you're below half health.",
+  "Spirit Resilience": "Gives 30% spirit resist at all times, plus another 15% when you're below half health.",
+  "Bullet Resilience": "Gives 30% bullet resist at all times, plus another 15% when you're below half health.",
   "Surge of Power": "Imbue an ability with permanent spirit power and a speed burst on use.",
   "Mystic Burst": "Charges up spirit damage, then your next large ability hit deals bonus damage.",
   "Hollow Point": "Bonus weapon damage while you're above 65% health.",
