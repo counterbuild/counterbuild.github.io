@@ -213,7 +213,7 @@
     const w = kitText(window.WHEN[x.it.name], hero);
     if (w) cands.push(w);
     const from = ((x.it.details && x.it.details.from) || []).filter(n => buildNames.has(n));
-    if (from.length) cands.push(`Right after ${nameList(from)}: it upgrades from it, so the souls you spent carry over.`);
+    if (from.length) cands.push(`Right after ${nameList(from)}, since it builds from ${from.length > 1 ? "them" : "it"} and the souls you spent carry over.`);
     cands.push(WHEN_TIER[x.it.tier]);
     const pick = cands.find(c => !used.has(c)) || cands[0];
     used.add(pick);
@@ -243,8 +243,8 @@
     if (enemyIds.length && x.md.n >= 1500 && Math.abs(x.md.pts) >= 0.3) {
       const p = x.md.pts, n = x.md.n >= 1000 ? `${(x.md.n / 1000).toFixed(x.md.n < 10000 ? 1 : 0)}k` : x.md.n;
       out.push(p > 0
-        ? { kind: "data", text: `+${p.toFixed(1)} win rate vs these heroes`, title: `${n} games` }
-        : { kind: "warn", text: `${p.toFixed(1)} win rate vs these heroes`, title: `${n} games` });
+        ? { kind: "data", text: `+${p.toFixed(1)}% win rate against these heroes`, title: `${n} games` }
+        : { kind: "warn", text: `${p.toFixed(1)}% win rate against these heroes`, title: `${n} games` });
     }
     return out;
   }

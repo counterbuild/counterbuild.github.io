@@ -58,7 +58,7 @@
     }).catch(() => {
       if (my !== token) return;
       stats = null; statsKey = ""; statsErr = true;
-      $("status").textContent = "Couldn't reach the live data, so this build uses the written rules and saved hero data only.";
+      $("status").textContent = "Live data is unavailable right now, so this build uses the written rules and saved hero data only.";
       render();
     });
   }
@@ -331,7 +331,7 @@
       setTimeout(() => $("fb").open && $("fb").close(), 1600);
     } catch (e) {
       $("fb-send").disabled = false;
-      $("fb-status").textContent = "Couldn't send right now. Please try again in a moment.";
+      $("fb-status").textContent = "Your feedback couldn't be sent. Please try again in a moment.";
     }
   }
   // The message hint matches the selected type.
