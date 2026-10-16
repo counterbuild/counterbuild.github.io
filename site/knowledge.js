@@ -262,3 +262,19 @@ window.HERO_IMBUE = {
 
 // Items that only do something for abilities with charges.
 window.CHARGE_ITEMS = ["Extra Charge", "Rapid Recharge", "Recharging Rush"];
+
+// Heroes whose kit supports the team (heals, shields, saves or team buffs). Support is only
+// suggested for them; for everyone else it's Not Recommended.
+window.SUPPORT_HEROES = ["Kelvin", "Paige", "Rem", "Viscous", "Dynamo", "McGinnis", "Ivy"];
+
+// How an enemy-team trait shifts which route makes sense (added to a route's fit when that trait
+// is on). Gun-heavy or lockdown teams favor surviving (Tank); tanky or lifesteal teams favor
+// sustained gun damage with headshot and bleed items; slippery teams favor spirit control and support.
+window.TRAIT_ROUTE = {
+  gun: { tank: 0.08, support: 0.04 },
+  spirit: { tank: 0.06, hybrid: 0.03 },
+  tank: { gun: 0.07, spirit: 0.03 },
+  heal: { gun: 0.04, hybrid: 0.02 },
+  cc: { tank: 0.05, support: 0.03 },
+  mobile: { spirit: 0.04, support: 0.03 },
+};

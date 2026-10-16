@@ -152,15 +152,20 @@
     support: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
   };
 
-  // Route fit describes the hero, not the matchup, so it's measured without enemies (counter items
-  // would otherwise drag every route down). Cached until the hero or live data change.
+  // Route advice for the current hero and enemies, cached until either or the live data changes.
   let fitCache = { key: "", fit: null };
   function currentFit() {
     const st = stats && statsKey === keyNow() ? stats : null;
-    const key = state.hero + "|" + (st ? "live" : "saved");
-    if (fitCache.key !== key) fitCache = { key, fit: E.routeFit(state.hero, [], {}, st) };
+    const key = keyNow() + "|" + (st ? "live" : "saved");
+    if (fitCache.key !== key) fitCache = { key, fit: E.routeFit(state.hero, state.enemies, state.overrides, st) };
     return fitCache.fit;
   }
+
+  const weakWhy = r => {
+    const name = E.heroById[state.hero].name;
+    return r === "support" && !window.SUPPORT_HEROES.includes(name)
+      ? `${name}'s kit has little to heal, shield or buff teammates with` : `${name} players rarely spend their souls this way`;
+  };
 
   function renderRoutes() {
     const fit = currentFit();
@@ -171,7 +176,7 @@
       const q = r.quota, total = q.weapon + q.spirit + q.vitality;
       const bar = ["weapon", "spirit", "vitality"].map(s => `<i class="${s}" style="flex:${q[s]}" title="${cap(s)}: ${q[s]} of ${total}"></i>`).join("");
       return `<button class="route" role="radio" aria-checked="${k === state.route}" data-route="${k}">
-        <span class="route-top"><span class="route-icon" aria-hidden="true">${ROUTE_ICON[k]}</span><b>${r.name}</b>${k === suggested ? `<em class="suggest">Suggested</em>` : fit.weak.has(k) ? `<em class="suggest not" title="Players rarely build ${esc(E.heroById[state.hero].name)} this way">Not Recommended</em>` : ""}</span>
+        <span class="route-top"><span class="route-icon" aria-hidden="true">${ROUTE_ICON[k]}</span><b>${r.name}</b>${k === suggested ? `<em class="suggest">Suggested</em>` : fit.weak.has(k) ? `<em class="suggest not" title="${esc(weakWhy(k))}">Not Recommended</em>` : ""}</span>
         <span class="route-blurb">${r.blurb}</span>
         <span class="mix" aria-hidden="true">${bar}</span>
       </button>`;

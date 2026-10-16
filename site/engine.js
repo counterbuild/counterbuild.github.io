@@ -187,19 +187,49 @@
     return { hero, traits, lane, chosen, alts, names };
   }
 
-  // How well each route fits the way this hero is really played: the average share of the hero's
-  // games that include each item in that route's build (capped so one staple can't carry it).
-  // The best route is Suggested; a route under 80% of the best is Not Recommended.
-  const WEAK_ROUTE = 0.8;
-  function routeFit(heroId, enemyIds, overrides, stats) {
-    const scores = {};
-    for (const r of Object.keys(ROUTES)) {
-      const b = build(heroId, r, enemyIds, overrides, stats);
-      scores[r] = b.chosen.reduce((sum, x) => sum + Math.min(x.use, 60), 0) / (b.chosen.length || 1);
+  // Route advice.
+  //   Fit: how close the route's weapon/spirit/vitality mix is to what players of this hero actually
+  //   spend their souls on (live item data, else the saved popular builds). A route much further
+  //   off than the closest one is Not Recommended, and so is Support on heroes without a
+  //   team-support kit.
+  //   Suggested: the closest fit, nudged by the enemy team (TRAIT_ROUTE in knowledge.js, plus how
+  //   each route's items do against them in live win-rate data), so close calls change with the
+  //   matchup. Never a Not Recommended route.
+  const WEAK_GAP = 0.22, MATCHUP_WEIGHT = 0.6;
+  const SUPPORT_KIT_BONUS = 0.12; // a team-support kit counts for more than its item mix shows
+  const SLOTS = ["weapon", "spirit", "vitality"];
+  const avg = (xs, f) => xs.reduce((sum, x) => sum + f(x), 0) / (xs.length || 1);
+  function spendMix(hero, stats) {
+    const spent = { weapon: 0, spirit: 0, vitality: 0 };
+    for (const it of D.items) {
+      if (it.tier < 2) continue; // lane items are bought by everyone and sold later
+      const n = stats ? ((stats.base[it.id] || [0, 0])[1]) : (hero.pop[it.id] || 0);
+      spent[it.slot] += n * it.cost;
     }
-    const best = Object.keys(scores).reduce((a, r) => (scores[r] > scores[a] ? r : a));
-    const weak = new Set(Object.keys(scores).filter(r => scores[r] < WEAK_ROUTE * scores[best]));
-    return { scores, best, weak };
+    const total = SLOTS.reduce((t, k) => t + spent[k], 0) || 1;
+    return Object.fromEntries(SLOTS.map(k => [k, spent[k] / total]));
+  }
+  function routeFit(heroId, enemyIds, overrides, stats) {
+    const hero = heroById[heroId], routes = Object.keys(ROUTES), mix = spendMix(hero, stats);
+    const dist = {}, vs = {}, score = {};
+    for (const r of routes) {
+      const q = ROUTES[r].quota, t = q.weapon + q.spirit + q.vitality;
+      dist[r] = SLOTS.reduce((d, k) => d + Math.abs(q[k] / t - mix[k]), 0);
+    }
+    if (window.SUPPORT_HEROES.includes(hero.name)) dist.support -= SUPPORT_KIT_BONUS;
+    const closest = Math.min(...Object.values(dist));
+    const weak = new Set(routes.filter(r => dist[r] - closest > WEAK_GAP ||
+      (r === "support" && !window.SUPPORT_HEROES.includes(hero.name))));
+    const traits = enemyIds.length ? activeTraits(enemyIds, overrides) : { on: {} };
+    for (const r of routes) {
+      const lean = Object.keys(traits.on).filter(t => traits.on[t]).reduce((sum, t) => sum + ((window.TRAIT_ROUTE[t] || {})[r] || 0), 0);
+      vs[r] = stats && enemyIds.length
+        ? avg(build(heroId, r, enemyIds, overrides, stats).chosen, x => x.md.pts * Math.min(1, x.use / 10)) : 0;
+      score[r] = -dist[r] + lean + MATCHUP_WEIGHT * vs[r];
+    }
+    const options = routes.filter(r => !weak.has(r));
+    const best = (options.length ? options : routes).reduce((a, r) => (score[r] > score[a] ? r : a));
+    return { mix, dist, vs, score, best, weak };
   }
 
   // Fallback "How to Use" when there's no hand-written tip.
