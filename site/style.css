@@ -764,3 +764,14 @@ html { scrollbar-gutter: stable; }
   margin: 0 14px 10px; padding: 8px 12px; border-radius: 8px;
   background: var(--bg); border: 1px solid var(--line);
 }
+
+/* Note labels each get their own color: Counter red (the enemy), How to Use blue (instructions),
+   When to Buy gold (shopping). Kept clear of the weapon/vitality/spirit colors and the soul green. */
+:root { --c-counter: #b3261e; --c-counter-bg: #fbe9e7; --c-use: #1f5fbf; --c-use-bg: #e6eefb; --c-buy: #8a6100; --c-buy-bg: #f8efd9; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --c-counter: #ff8f86; --c-counter-bg: #3a1f1d; --c-use: #8db8ff; --c-use-bg: #1b2a44; --c-buy: #f2c25b; --c-buy-bg: #3a2f14; }
+}
+:root[data-theme="dark"] { --c-counter: #ff8f86; --c-counter-bg: #3a1f1d; --c-use: #8db8ff; --c-use-bg: #1b2a44; --c-buy: #f2c25b; --c-buy-bg: #3a2f14; }
+.badge.rule { background: var(--c-counter-bg); color: var(--c-counter); }
+.badge.tip { background: var(--c-use-bg); color: var(--c-use); }
+.badge.when { background: var(--c-buy-bg); color: var(--c-buy); }
