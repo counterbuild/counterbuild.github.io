@@ -79,6 +79,7 @@
     if (step === "build" && !state.enemies.length) step = "enemy";
     state.step = step;
     for (const s of STEPS) $("step-" + s).hidden = s !== step;
+    $("share").hidden = step !== "build"; // only a finished build can be shared
     const idx = STEPS.indexOf(step);
     document.querySelectorAll(".steps li").forEach((li, i) => {
       li.classList.toggle("current", i === idx);
@@ -89,6 +90,17 @@
     window.scrollTo(0, 0);
   }
   window.addEventListener("popstate", () => go((location.hash || "#hero").slice(1), false));
+
+  // Sticky header: a shadow once the page is scrolled. On phones it slides away while you scroll
+  // down and comes back as soon as you scroll up.
+  let lastY = 0;
+  const phone = matchMedia("(max-width: 640px)");
+  window.addEventListener("scroll", () => {
+    const y = window.scrollY, top = document.querySelector(".top");
+    top.classList.toggle("scrolled", y > 4);
+    top.classList.toggle("tucked", phone.matches && y > lastY && y > 80);
+    lastY = y;
+  }, { passive: true });
 
   // ---------- rendering ----------
   const heroImg = h => `<img src="${h.img}" alt="${esc(h.name)}" title="${esc(h.name)}">`;

@@ -832,3 +832,28 @@ html { scrollbar-gutter: stable; }
   .matchup-actions { gap: 6px; }
   .matchup-actions .btn { white-space: nowrap; padding: 7px 4px; font-size: 0.8rem; justify-content: center; }
 }
+
+/* Sticky header */
+.top { position: sticky; top: 0; z-index: 50; transition: transform .25s ease, box-shadow .2s; }
+.top.scrolled { box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.6); }
+.top.tucked { transform: translateY(-100%); }
+@media (prefers-reduced-motion: reduce) { .top { transition: none; } }
+
+/* Share Link in the header, outlined so it sits beside the filled Feedback button */
+.share-top { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--accent); border-radius: 8px; background: transparent; color: var(--accent); font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+.share-top[hidden] { display: none; }
+.share-top:hover { background: var(--accent-soft); }
+.top-row .share-top + .feedback { margin-left: -6px; }
+@media (max-width: 640px) {
+  .share-top { padding: 6px 8px; }
+  .share-top span { display: none; }
+}
+@media (max-width: 640px) {
+  .top-row { gap: 6px; }
+  .nav-sep { display: none; }
+  .top-row .share-top + .feedback { margin-left: 0; }
+  .steps { gap: 4px; }
+  .brand { gap: 6px; font-size: 0.86rem; }
+  .brand img { width: 24px; height: 24px; }
+  .steps button { padding: 4px 0; }
+}
