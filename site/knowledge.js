@@ -41,6 +41,8 @@ window.HERO_CC = {
   "Rem": [["Tag Along", "stun"], ["Naptime", "sleep"]],
   "Celeste": [["Dazzling Trick", "silence"]],
   "Solomon": [["Rook Battery", "root"], ["Develop Queen", "stun"]],
+  "Violet": [["Still Life", "stun"], ["Abstract Landscape", "silence"]],
+  "Baba": [["Baba's Brew", "silence"], ["Granny Long Legs", "knockup"], ["Feed The Birds", "hex"]],
 };
 
 // Lockdown counters that only work on some kinds of lockdown (from the items' own text).
@@ -258,6 +260,7 @@ window.HERO_IMBUE = {
   "Viscous": 1, "Pocket": 1, "Mirage": 2, "Vyper": 1, "Sinclair": 1, "Mina": 1, "Drifter": 1,
   "Venator": 3, "Victor": 1, "Paige": 1, "The Doorman": 1, "Billy": 1, "Graves": 2, "Apollo": 1,
   "Deadman Danny": 2, "Rem": 1, "Silver": 3, "Celeste": 1, "Rat King": 2, "Solomon": 1,
+  "Violet": 1, "Baba": 1,
 };
 
 // Items that only do something for abilities with charges.
@@ -292,4 +295,5 @@ window.HERO_MOBILITY = {
   "Mina": ["Sanguine Retreat"], "Apollo": ["Flawless Advance", "Disengaging Sigil"],
   "Deadman Danny": ["Chimera Mk1"], "Rem": ["Tag Along"], "The Doorman": ["Doorway"],
   "Billy": ["Rising Ram"], "Rat King": ["Rat Swarm"], "Paradox": ["Paradoxical Swap"],
+  "Violet": ["Flow State"], "Baba": ["Granny Long Legs"],
 };

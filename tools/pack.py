@@ -41,9 +41,20 @@ def kit(h):
     imbue = min(damage)[1] if damage else 1
     return {"autoCC": cc, "autoMove": move, "autoHeal": heal, "autoImbue": imbue}
 
+# Matches per hero in the last 30 days (from tools/update_data.py). A hero still flagged
+# "in development" is included once it's really being played.
+try:
+    played = {}
+    for r in json.load(open("data/hero_matches.json", encoding="utf-8")):
+        played[r["hero_id"]] = played.get(r["hero_id"], 0) + r["matches_played"]
+except FileNotFoundError:
+    played = {}
+MIN_RECENT_MATCHES = 5000
+
 H = []
 for h in heroes:
-    if not (h.get("player_selectable") and not h.get("disabled") and not h.get("in_development")): continue
+    if not h.get("player_selectable") or h.get("disabled"): continue
+    if h.get("in_development") and played.get(h["id"], 0) < MIN_RECENT_MATCHES: continue
     pop = {}
     for ph in (h.get("popular_items") or {}).values():
         if isinstance(ph, list):
