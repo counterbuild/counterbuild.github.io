@@ -12,6 +12,35 @@ def charges(cls):
     a = next((x for x in items if x.get("class_name") == cls), {})
     try: return float(((a.get("properties") or {}).get("AbilityCharges") or {}).get("value") or 0)
     except ValueError: return 0
+# Automatic kit facts for each hero, read from the ability data. The hand-written lists in
+# site/knowledge.js win when a hero is in them; these cover new heroes until someone adds them.
+ability_by_class = {x["class_name"]: x for x in items if x.get("type") == "ability"}
+CC_KEYS = [("Sleep", "sleep"), ("Petrify", "petrify"), ("Immobilize", "root"), ("Silence", "silence"),
+           ("Hex", "hex"), ("Disarm", "disarm"), ("Tether", "tether"), ("Stun", "stun"), ("Lift", "lift")]
+MOVE_WORDS = re.compile(r"\b(dash(?:es)? (?:forward|to|toward)|teleport|leap|fly|flies|flight|grapple|burrow|launch(?:es)? (?:you|yourself)|blink)", re.I)
+HEAL_KEYS = re.compile(r"Heal|Lifesteal|Regen|HealthSteal", re.I)
+
+def num(v):
+    try: return float(str(v).rstrip("m"))
+    except (TypeError, ValueError): return 0.0
+
+def kit(h):
+    cc, move, heal, damage = [], [], False, []
+    for k in range(1, 5):
+        a = ability_by_class.get((h.get("items") or {}).get(f"signature{k}"), {})
+        props = a.get("properties") or {}
+        live = {n: num(p.get("value")) for n, p in props.items() if num(p.get("value")) > 0}
+        kind = next((kd for key, kd in CC_KEYS if any(key in n and "Self" not in n for n in live)), None)
+        if kind: cc.append([a.get("name"), kind])
+        if k < 4 and MOVE_WORDS.search(clean(a)): move.append(a.get("name"))
+        if any(HEAL_KEYS.search(n) and "Enemy" not in n and "Amp" not in n for n in live): heal = True
+        dmg = max([v for n, v in live.items() if (props[n].get("css_class") or "") in ("tech_damage", "damage")] + [0])
+        cd = live.get("AbilityCooldown", 0)
+        if k < 4 and dmg > 0: damage.append((cd or 99, k))
+    # Imbue target: the basic damage ability with the shortest cooldown.
+    imbue = min(damage)[1] if damage else 1
+    return {"autoCC": cc, "autoMove": move, "autoHeal": heal, "autoImbue": imbue}
+
 H = []
 for h in heroes:
     if not (h.get("player_selectable") and not h.get("disabled") and not h.get("in_development")): continue
@@ -24,7 +53,8 @@ for h in heroes:
               # Ability names in key order 1-4 (4 is the ultimate), used by the imbue tips.
               "abilities": [ability_name.get((h.get("items") or {}).get(f"signature{k}"), "") for k in range(1, 5)],
               # Abilities 1-3 that use charges (for Extra Charge and Rapid Recharge).
-              "charged": [ability_name.get(h["items"][f"signature{k}"], "") for k in range(1, 4) if charges((h.get("items") or {}).get(f"signature{k}")) > 1]})
+              "charged": [ability_name.get(h["items"][f"signature{k}"], "") for k in range(1, 4) if charges((h.get("items") or {}).get(f"signature{k}")) > 1],
+              **kit(h)})
 by_class = {x["class_name"]: x for x in items if x.get("type") == "upgrade"}
 upgrades_to = {}
 for x in items:

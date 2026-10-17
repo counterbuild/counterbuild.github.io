@@ -12,6 +12,12 @@
   for (const [tag, names] of Object.entries(window.TAGS)) for (const n of names) (tagOf[n] = tagOf[n] || []).push(tag);
   const rate = ([w, m]) => (m ? w / m : 0);
 
+  // Hand-written kit facts (knowledge.js) when a hero has them; new heroes fall back to the facts
+  // tools/pack.py reads from their ability data, until someone reviews and adds them by hand.
+  const known = h => h.name in window.HERO_IMBUE;
+  const ccList = h => window.HERO_CC[h.name] || (known(h) ? [] : h.autoCC || []);
+  const moveList = h => window.HERO_MOBILITY[h.name] || (known(h) ? [] : h.autoMove || []);
+
   function heroTraits(h) {
     const t = new Set();
     const tags = (h.tags || []).join(" ");
@@ -19,17 +25,17 @@
     if (h.type === "mystic") t.add("spirit");
     if (h.type === "marksman" || h.type === "assassin") t.add("gun");
     // Slippery: a basic ability that moves them (see HERO_MOBILITY), not just an ultimate.
-    if ((window.HERO_MOBILITY[h.name] || []).some(a => a !== (h.abilities || [])[3])) t.add("mobile");
-    if (window.HERO_TRAITS.heal.includes(h.name) || /Lifesteal/.test(tags)) t.add("heal");
+    if (moveList(h).some(a => a !== (h.abilities || [])[3])) t.add("mobile");
+    if (window.HERO_TRAITS.heal.includes(h.name) || /Lifesteal/.test(tags) || (!known(h) && h.autoHeal)) t.add("heal");
     // Lockdown on a basic ability, not just the ultimate.
-    if ((window.HERO_CC[h.name] || []).some(([a]) => a !== (h.abilities || [])[3])) t.add("cc");
+    if (ccList(h).some(([a]) => a !== (h.abilities || [])[3])) t.add("cc");
     return t;
   }
 
   // The lockdown abilities of hero h that this item answers (all of them for most items).
   function ccFor(itemName, h) {
     const lim = window.CC_ITEM_KINDS[itemName];
-    return (window.HERO_CC[h.name] || []).filter(([a, kind]) =>
+    return ccList(h).filter(([a, kind]) =>
       !lim || (lim.kinds.includes(kind) && !(lim.noUlt && a === (h.abilities || [])[3])));
   }
   // Enemy heroes that bring trait t, narrowed for lockdown items to the lockdown the item answers.
@@ -304,7 +310,7 @@
   function kitText(text, hero) {
     if (!text) return null;
     const ab = hero.abilities || [];
-    const names = { imbue: ab[(window.HERO_IMBUE[hero.name] || 1) - 1], ult: ab[3], charged: (hero.charged || [])[0] };
+    const names = { imbue: ab[(window.HERO_IMBUE[hero.name] || hero.autoImbue || 1) - 1], ult: ab[3], charged: (hero.charged || [])[0] };
     let ok = true;
     const out = text.replace(/\{(imbue|ult|charged)\}/g, (m, k) => names[k] || (ok = false, m));
     return ok ? out : null;
